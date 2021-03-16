@@ -1,0 +1,6 @@
+{
+    "Team": {
+      "teamname": "string",
+      "rating": "int"
+    }
+  }
