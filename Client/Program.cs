@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 
-namespace scottish_hockey_reference
+namespace scottishhockeyreference.Client
 {
     public class Program
     {
