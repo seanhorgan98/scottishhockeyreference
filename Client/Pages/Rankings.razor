@@ -28,16 +28,16 @@ else
                     <td>@rank</td>
                     <td>@team.TeamName</td>
                     <td>@team.Rating</td>
-                    @if(@team.Movement >= 50){
+                    @if(@team.Movement > 0){
                         <td>
                             <span class="oi oi-chevron-top" style="color:green"></span>
                         </td>
-                    }else if(@team.Movement < 50){
+                    }else if(@team.Movement < 0){
                         <td>
                             <span class="oi oi-chevron-bottom" style="color:red"></span>
                         </td>
                     }else{
-                        <td>-</td>
+                        <td> </td>
                     }
                 </tr>
                 rank = rank + 1;
@@ -51,15 +51,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        teams = await Http.GetFromJsonAsync<Team[]>("https://60509aa95346090017670130.mockapi.io/teams?sortBy=rating&order=desc");
+        teams = await Http.GetFromJsonAsync<Team[]>("api/Teams");
+        // https://60509aa95346090017670130.mockapi.io/teams?sortBy=rating&order=desc
     }
 
     public class Team
     {
         public string TeamName { get; set; }
-
         public int Rating { get; set; }
-
         public int Movement { get; set; }
+        public int Rank { get; set; }
     }
 }

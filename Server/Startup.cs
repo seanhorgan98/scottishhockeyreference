@@ -30,6 +30,15 @@ namespace scottishhockeyreference.Server
                                                opt.UseInMemoryDatabase("TeamList"));
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                    builder.SetIsOriginAllowed(_ => true)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -52,6 +61,8 @@ namespace scottishhockeyreference.Server
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseCors("devcors");
 
             app.UseEndpoints(endpoints =>
             {
