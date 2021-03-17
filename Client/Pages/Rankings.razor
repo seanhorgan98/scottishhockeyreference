@@ -51,7 +51,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        teams = await Http.GetFromJsonAsync<Team[]>("api/Teams");
+        Team[] results = await Http.GetFromJsonAsync<Team[]>("api/Teams");
+        teams = results.OrderByDescending(Team => Team.Rating).ToArray();
         // https://60509aa95346090017670130.mockapi.io/teams?sortBy=rating&order=desc
     }
 
