@@ -74,7 +74,6 @@ else
         var teamToPost = new Team("Test Team", 1000, 1);
         await Http.PostAsJsonAsync("api/Teams", teamToPost);
     }
-
     public class Team
     {
         public string TeamName { get; set; }

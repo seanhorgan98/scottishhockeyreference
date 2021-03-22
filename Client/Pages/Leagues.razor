@@ -1,0 +1,114 @@
+@page "/leagues"
+@using System.Net.Http.Json
+@inject HttpClient httpClient
+
+<h1>League Tables</h1>
+<MudDivider />
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+    <MudTabPanel Text="Men's">
+        <MudTable Items="@Teams" Dense="true" @bind-SelectedItem="selectedItem">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Men's Premiership</MudText>
+        <MudToolBarSpacer />
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Position</MudTh>
+        <MudTh>Team</MudTh>
+        <MudTh>Played</MudTh>
+        <MudTh>Won</MudTh>
+        <MudTh>Drawn</MudTh>
+        <MudTh>Lost</MudTh>
+        <MudTh>Goals For</MudTh>
+        <MudTh>Goals Against</MudTh>
+        <MudTh>Goal Difference</MudTh>
+        <MudTh>Points</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Position">@context.Position</MudTd>
+        <MudTd DataLabel="Team">@context.TeamName</MudTd>
+        <MudTd DataLabel="Played">@context.SeasonPlayed</MudTd>
+        <MudTd DataLabel="Won">@context.SeasonWon</MudTd>
+        <MudTd DataLabel="Drawn">@context.SeasonDrawn</MudTd>
+        <MudTd DataLabel="Lost">@context.SeasonLost</MudTd>
+        <MudTd DataLabel="Goals For">@context.SeasonGoalsFor</MudTd>
+        <MudTd DataLabel="Goals Against">@context.SeasonGoalsAgainst</MudTd>
+        <MudTd DataLabel="Goal Difference">@context.SeasonGoalDifference</MudTd>
+        <MudTd DataLabel="Points">@context.SeasonPoints</MudTd>
+    </RowTemplate>
+</MudTable>
+    </MudTabPanel>
+    <MudTabPanel Text="Women's">
+
+    </MudTabPanel>
+    <MudTabPanel Text="Men's Indoor">
+
+    </MudTabPanel>
+    <MudTabPanel Text="Women's Indoor">
+
+    </MudTabPanel>
+</MudTabs>
+
+
+
+@code {
+    private Team selectedItem = null;
+    private HashSet<Team> selectedItems = new HashSet<Team>();
+
+    private Team[] Teams;
+
+    private IEnumerable<string> LeagueNames = new List<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize league names
+        var results = await httpClient.GetFromJsonAsync<List<Team>>("api/Teams");
+        Teams = results.OrderByDescending(Team => Team.SeasonPoints).ToArray();
+
+        int i = 1;
+        foreach(var item in Teams)
+        {
+            item.Position = i;
+            i++;
+        }
+    }
+
+    /*
+    private bool FilterFunc(Team team)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (team.Teamname.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+    */
+
+    public class Team
+    {
+        public string TeamName { get; set; }
+        public int Position { get; set; }
+        public int SeasonPlayed { get; set; }
+        public int SeasonWon { get; set; }
+        public int SeasonDrawn { get; set; }
+        public int SeasonLost { get; set; }
+        public int SeasonGoalsFor { get; set; }
+        public int SeasonGoalsAgainst { get; set; }
+        public int SeasonGoalDifference { get; set; }
+        public int SeasonPoints { get; set; }
+
+        public Team(string teamname, int position, int seasonplayed, int seasonwon, int seasondrawn, int seasonlost, int seasongoalsfor, int seasongoalsagainst, int seasongoaldifference, int seasonpoints)
+        {
+            this.TeamName = teamname;
+            this.Position = position;
+            this.SeasonPlayed = seasonplayed;
+            this.SeasonWon = seasonwon;
+            this.SeasonDrawn = seasondrawn;
+            this.SeasonLost = seasonlost;
+            this.SeasonGoalsFor = seasongoalsfor;
+            this.SeasonGoalsAgainst = seasongoalsagainst;
+            this.SeasonGoalDifference = seasongoaldifference;
+            this.SeasonPoints = seasonpoints;
+        }
+    }
+}
+
