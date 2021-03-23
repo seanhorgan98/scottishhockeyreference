@@ -8,147 +8,176 @@
     <MudTabPanel Text="Men's">
         @foreach (var league in MensLeagueNames)
         {
-            int i = 0;
-            searchIndex[i] = league;
-            i++;
-            <MudTable Items="@Teams" Dense="true" Filter="new Func<Team,bool>(FilterFunc)" Hover="true" @bind-SelectedItem="selectedItem">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h6">@league</MudText>
-                    <MudToolBarSpacer />
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>Position</MudTh>
-                    <MudTh>Team</MudTh>
-                    <MudTh>Played</MudTh>
-                    <MudTh>Won</MudTh>
-                    <MudTh>Drawn</MudTh>
-                    <MudTh>Lost</MudTh>
-                    <MudTh>Goals For</MudTh>
-                    <MudTh>Goals Against</MudTh>
-                    <MudTh>Goal Difference</MudTh>
-                    <MudTh>Points</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Position">@context.Position</MudTd>
-                    <MudTd DataLabel="Team">@context.TeamName</MudTd>
-                    <MudTd DataLabel="Played">@context.SeasonPlayed</MudTd>
-                    <MudTd DataLabel="Won">@context.SeasonWon</MudTd>
-                    <MudTd DataLabel="Drawn">@context.SeasonDrawn</MudTd>
-                    <MudTd DataLabel="Lost">@context.SeasonLost</MudTd>
-                    <MudTd DataLabel="Goals For">@context.SeasonGoalsFor</MudTd>
-                    <MudTd DataLabel="Goals Against">@context.SeasonGoalsAgainst</MudTd>
-                    <MudTd DataLabel="Goal Difference">@context.SeasonGoalDifference</MudTd>
-                    <MudTd DataLabel="Points">@context.SeasonPoints</MudTd>
-                </RowTemplate>
-            </MudTable>
+            <h2>@league</h2>
+            <table class="table table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Position</th>
+                        <th scope="col">Team</th>
+                        <th scope="col">Played</th>
+                        <th scope="col">Won</th>
+                        <th scope="col">Drawn</th>
+                        <th scope="col">Lost</th>
+                        <th scope="col">Goals For</th>
+                        <th scope="col">Goals Against</th>
+                        <th scope="col">Goal Difference</th>
+                        <th scope="col">Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int position = 0;}
+                    @foreach (var team in Teams)
+                    {
+                        if (!teamIsVisible(league, team))
+                            continue;
+                        position += 1;
+                        <tr>
+                            <td>@position</td>
+                            <td>@team.TeamName</td>
+                            <td>@team.SeasonPlayed</td>
+                            <td>@team.SeasonWon</td>
+                            <td>@team.SeasonDrawn</td>
+                            <td>@team.SeasonLost</td>
+                            <td>@team.SeasonGoalsFor</td>
+                            <td>@team.SeasonGoalsAgainst</td>
+                            <td>@team.SeasonGoalDifference</td>
+                            <td>@team.SeasonPoints</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
             <MudDivider />
         }
     </MudTabPanel>
     <MudTabPanel Text="Women's">
         @foreach (var league in WomensLeagueNames)
         {
-            <MudTable Items="@Teams" Dense="true" Filter="new Func<Team,bool>(FilterFunc)" Hover="true" @bind-SelectedItem="selectedItem">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h6">@league</MudText>
-                    <MudToolBarSpacer />
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>Position</MudTh>
-                    <MudTh>Team</MudTh>
-                    <MudTh>Played</MudTh>
-                    <MudTh>Won</MudTh>
-                    <MudTh>Drawn</MudTh>
-                    <MudTh>Lost</MudTh>
-                    <MudTh>Goals For</MudTh>
-                    <MudTh>Goals Against</MudTh>
-                    <MudTh>Goal Difference</MudTh>
-                    <MudTh>Points</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Position">@context.Position</MudTd>
-                    <MudTd DataLabel="Team">@context.TeamName</MudTd>
-                    <MudTd DataLabel="Played">@context.SeasonPlayed</MudTd>
-                    <MudTd DataLabel="Won">@context.SeasonWon</MudTd>
-                    <MudTd DataLabel="Drawn">@context.SeasonDrawn</MudTd>
-                    <MudTd DataLabel="Lost">@context.SeasonLost</MudTd>
-                    <MudTd DataLabel="Goals For">@context.SeasonGoalsFor</MudTd>
-                    <MudTd DataLabel="Goals Against">@context.SeasonGoalsAgainst</MudTd>
-                    <MudTd DataLabel="Goal Difference">@context.SeasonGoalDifference</MudTd>
-                    <MudTd DataLabel="Points">@context.SeasonPoints</MudTd>
-                </RowTemplate>
-            </MudTable>
+            <h2>@league</h2>
+            <table class="table table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Position</th>
+                        <th scope="col">Team</th>
+                        <th scope="col">Played</th>
+                        <th scope="col">Won</th>
+                        <th scope="col">Drawn</th>
+                        <th scope="col">Lost</th>
+                        <th scope="col">Goals For</th>
+                        <th scope="col">Goals Against</th>
+                        <th scope="col">Goal Difference</th>
+                        <th scope="col">Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int position = 0;}
+                    @foreach (var team in Teams)
+                    {
+                        if (!teamIsVisible(league, team))
+                            continue;
+                        position += 1;
+                        <tr>
+                            <td>@position</td>
+                            <td>@team.TeamName</td>
+                            <td>@team.SeasonPlayed</td>
+                            <td>@team.SeasonWon</td>
+                            <td>@team.SeasonDrawn</td>
+                            <td>@team.SeasonLost</td>
+                            <td>@team.SeasonGoalsFor</td>
+                            <td>@team.SeasonGoalsAgainst</td>
+                            <td>@team.SeasonGoalDifference</td>
+                            <td>@team.SeasonPoints</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
             <MudDivider />
         }
     </MudTabPanel>
     <MudTabPanel Text="Men's Indoor">
         @foreach (var league in MensIndoorLeagueNames)
         {
-            <MudTable Items="@Teams" Dense="true" Filter="new Func<Team,bool>(FilterFunc)" Hover="true" @bind-SelectedItem="selectedItem">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h6">@league</MudText>
-                    <MudToolBarSpacer />
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>Position</MudTh>
-                    <MudTh>Team</MudTh>
-                    <MudTh>Played</MudTh>
-                    <MudTh>Won</MudTh>
-                    <MudTh>Drawn</MudTh>
-                    <MudTh>Lost</MudTh>
-                    <MudTh>Goals For</MudTh>
-                    <MudTh>Goals Against</MudTh>
-                    <MudTh>Goal Difference</MudTh>
-                    <MudTh>Points</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Position">@context.Position</MudTd>
-                    <MudTd DataLabel="Team">@context.TeamName</MudTd>
-                    <MudTd DataLabel="Played">@context.SeasonPlayed</MudTd>
-                    <MudTd DataLabel="Won">@context.SeasonWon</MudTd>
-                    <MudTd DataLabel="Drawn">@context.SeasonDrawn</MudTd>
-                    <MudTd DataLabel="Lost">@context.SeasonLost</MudTd>
-                    <MudTd DataLabel="Goals For">@context.SeasonGoalsFor</MudTd>
-                    <MudTd DataLabel="Goals Against">@context.SeasonGoalsAgainst</MudTd>
-                    <MudTd DataLabel="Goal Difference">@context.SeasonGoalDifference</MudTd>
-                    <MudTd DataLabel="Points">@context.SeasonPoints</MudTd>
-                </RowTemplate>
-            </MudTable>
+            <h2>@league</h2>
+            <table class="table table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Position</th>
+                        <th scope="col">Team</th>
+                        <th scope="col">Played</th>
+                        <th scope="col">Won</th>
+                        <th scope="col">Drawn</th>
+                        <th scope="col">Lost</th>
+                        <th scope="col">Goals For</th>
+                        <th scope="col">Goals Against</th>
+                        <th scope="col">Goal Difference</th>
+                        <th scope="col">Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int position = 0;}
+                    @foreach (var team in Teams)
+                    {
+                        if (!teamIsVisible(league, team))
+                            continue;
+                        position += 1;
+                        <tr>
+                            <td>@position</td>
+                            <td>@team.TeamName</td>
+                            <td>@team.SeasonPlayed</td>
+                            <td>@team.SeasonWon</td>
+                            <td>@team.SeasonDrawn</td>
+                            <td>@team.SeasonLost</td>
+                            <td>@team.SeasonGoalsFor</td>
+                            <td>@team.SeasonGoalsAgainst</td>
+                            <td>@team.SeasonGoalDifference</td>
+                            <td>@team.SeasonPoints</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
             <MudDivider />
         }
     </MudTabPanel>
     <MudTabPanel Text="Women's Indoor">
         @foreach (var league in WomensIndoorLeagueNames)
         {
-            <MudTable Items="@Teams" Dense="true" Filter="new Func<Team,bool>(FilterFunc)" Hover="true" @bind-SelectedItem="selectedItem">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h6">@league</MudText>
-                    <MudToolBarSpacer />
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>Position</MudTh>
-                    <MudTh>Team</MudTh>
-                    <MudTh>Played</MudTh>
-                    <MudTh>Won</MudTh>
-                    <MudTh>Drawn</MudTh>
-                    <MudTh>Lost</MudTh>
-                    <MudTh>Goals For</MudTh>
-                    <MudTh>Goals Against</MudTh>
-                    <MudTh>Goal Difference</MudTh>
-                    <MudTh>Points</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Position">@context.Position</MudTd>
-                    <MudTd DataLabel="Team">@context.TeamName</MudTd>
-                    <MudTd DataLabel="Played">@context.SeasonPlayed</MudTd>
-                    <MudTd DataLabel="Won">@context.SeasonWon</MudTd>
-                    <MudTd DataLabel="Drawn">@context.SeasonDrawn</MudTd>
-                    <MudTd DataLabel="Lost">@context.SeasonLost</MudTd>
-                    <MudTd DataLabel="Goals For">@context.SeasonGoalsFor</MudTd>
-                    <MudTd DataLabel="Goals Against">@context.SeasonGoalsAgainst</MudTd>
-                    <MudTd DataLabel="Goal Difference">@context.SeasonGoalDifference</MudTd>
-                    <MudTd DataLabel="Points">@context.SeasonPoints</MudTd>
-                </RowTemplate>
-            </MudTable>
+            <h2>@league</h2>
+            <table class="table table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Position</th>
+                        <th scope="col">Team</th>
+                        <th scope="col">Played</th>
+                        <th scope="col">Won</th>
+                        <th scope="col">Drawn</th>
+                        <th scope="col">Lost</th>
+                        <th scope="col">Goals For</th>
+                        <th scope="col">Goals Against</th>
+                        <th scope="col">Goal Difference</th>
+                        <th scope="col">Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int position = 0;}
+                    @foreach (var team in Teams)
+                    {
+                        if (!teamIsVisible(league, team))
+                            continue;
+                        position += 1;
+                        <tr>
+                            <td>@position</td>
+                            <td>@team.TeamName</td>
+                            <td>@team.SeasonPlayed</td>
+                            <td>@team.SeasonWon</td>
+                            <td>@team.SeasonDrawn</td>
+                            <td>@team.SeasonLost</td>
+                            <td>@team.SeasonGoalsFor</td>
+                            <td>@team.SeasonGoalsAgainst</td>
+                            <td>@team.SeasonGoalDifference</td>
+                            <td>@team.SeasonPoints</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
             <MudDivider />
         }
     </MudTabPanel>
@@ -158,8 +187,6 @@
 
 @code {
     private Team selectedItem = null;
-    private string selectedLeague = "";
-    private int[] searchIndex;
 
     private HashSet<Team> selectedItems = new HashSet<Team>();
 
@@ -172,7 +199,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Initialize league names
         var results = await httpClient.GetFromJsonAsync<List<Team>>("api/Teams");
         Teams = results.OrderByDescending(Team => Team.SeasonPoints).ToArray();
 
@@ -183,30 +209,35 @@
             i++;
             if(item.League.Contains("Women") && item.League.Contains("Indoor"))
             {
-                WomensIndoorLeagueNames.Add(item.League);
+                if (!WomensIndoorLeagueNames.Contains(item.League))
+                    WomensIndoorLeagueNames.Add(item.League);
                 continue;
             }
             else if(item.League.Contains("Men") && item.League.Contains("Indoor"))
             {
-                MensIndoorLeagueNames.Add(item.League);
+                if (!MensIndoorLeagueNames.Contains(item.League))
+                    MensIndoorLeagueNames.Add(item.League);
                 continue;
             }
             else if(item.League.Contains("Women", StringComparison.OrdinalIgnoreCase))
             {
-                WomensLeagueNames.Add(item.League);
+                if (!WomensLeagueNames.Contains(item.League))
+                    WomensLeagueNames.Add(item.League);
                 continue;
             }
-            else
+            else if(item.League.Contains("Men"))
             {
-                MensLeagueNames.Add(item.League);
+                if (!MensLeagueNames.Contains(item.League))
+                    MensLeagueNames.Add(item.League);
+                continue;
             }
         }
     }
 
 
-    private bool FilterFunc(Team team)
+    public bool teamIsVisible(string league, Team team)
     {
-        if (team.League.Contains(selectedLeague, StringComparison.OrdinalIgnoreCase))
+        if (team.League.Equals(league))
             return true;
         return false;
     }
