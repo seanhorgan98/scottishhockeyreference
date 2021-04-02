@@ -15,18 +15,11 @@ namespace scottishhockeyreference.Scraper
         private static readonly string leagueURL = "https://www.scottish-hockey.org.uk/league-standings/";
         static async Task Main()
         {
-            var clientHandler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; }
-            };
+            HttpClientHandler clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
 
             // Pass the handler to httpclient(from you are calling api)
-            client = new HttpClient(clientHandler)
-            {
-                BaseAddress = new Uri("http://localhost:33988/")
-            };
-            client.DefaultRequestHeaders.Accept.Add(
-               new MediaTypeWithQualityHeaderValue("application/json"));
+            client = new HttpClient(clientHandler);
             await PrintLeagues();
         }
 
@@ -39,7 +32,7 @@ namespace scottishhockeyreference.Scraper
 
             foreach (var item in AllLeagues)
             {
-                SaveLeague(item.TextContent);
+                await SaveLeague(item.TextContent);
             }
         }
 
@@ -136,19 +129,18 @@ namespace scottishhockeyreference.Scraper
             var teamToPost = new Team(team, league, sponsor);
             Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
 
-            var response = await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
+            var response = await client.PostAsJsonAsync("api/Teams", teamToPost);
             Console.WriteLine(response);
 
         }
 
 
-        public static async void SaveLeague(string name)
+        public static async Task SaveLeague(string name)
         {
             var leagueToPost = new League(name, 1);
-            // Console.WriteLine(JsonConvert.SerializeObject(leagueToPost));
-            var response = await client.PostAsJsonAsync("api/Leagues/", value: leagueToPost);
-            bool returnValue = await response.Content.ReadAsAsync<bool>();
-            Console.WriteLine(returnValue);
+
+            var response = await client.PostAsJsonAsync("http://localhost:5000/api/Leagues", leagueToPost);
+            Console.WriteLine(response);
         }
     }
 
