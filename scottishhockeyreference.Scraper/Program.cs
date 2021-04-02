@@ -1,14 +1,11 @@
-﻿using System;
-using AngleSharp;
-using AngleSharp.Html.Parser;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Linq;
+﻿using AngleSharp;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace scottishhockeyreference.Scraper
 {
@@ -16,14 +13,21 @@ namespace scottishhockeyreference.Scraper
     {
         static HttpClient client;
         private static readonly string leagueURL = "https://www.scottish-hockey.org.uk/league-standings/";
-        static async Task Main(string[] args)
+        static async Task Main()
         {
-            HttpClientHandler clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+            var clientHandler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; }
+            };
 
             // Pass the handler to httpclient(from you are calling api)
-            client = new HttpClient(clientHandler);
-            await PrintAllInfo();
+            client = new HttpClient(clientHandler)
+            {
+                BaseAddress = new Uri("http://localhost:33988/")
+            };
+            client.DefaultRequestHeaders.Accept.Add(
+               new MediaTypeWithQualityHeaderValue("application/json"));
+            await PrintLeagues();
         }
 
         static async Task PrintLeagues()
@@ -35,7 +39,7 @@ namespace scottishhockeyreference.Scraper
 
             foreach (var item in AllLeagues)
             {
-                Console.WriteLine(item.TextContent);
+                SaveLeague(item.TextContent);
             }
         }
 
@@ -85,7 +89,7 @@ namespace scottishhockeyreference.Scraper
 
 
             int index = 0;
-            var loopDoc = document.QuerySelectorAll("div.tableWrap");
+            _ = document.QuerySelectorAll("div.tableWrap");
 
             // Loop through all league tables
             var leagueTeams = document.QuerySelectorAll("table.league-standings");
@@ -132,9 +136,19 @@ namespace scottishhockeyreference.Scraper
             var teamToPost = new Team(team, league, sponsor);
             Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
 
-            var response = await client.PostAsJsonAsync("http://localhost:5000/api/Teams", teamToPost);
+            var response = await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
             Console.WriteLine(response);
 
+        }
+
+
+        public static async void SaveLeague(string name)
+        {
+            var leagueToPost = new League(name, 1);
+            // Console.WriteLine(JsonConvert.SerializeObject(leagueToPost));
+            var response = await client.PostAsJsonAsync("api/Leagues/", value: leagueToPost);
+            bool returnValue = await response.Content.ReadAsAsync<bool>();
+            Console.WriteLine(returnValue);
         }
     }
 
@@ -149,6 +163,18 @@ namespace scottishhockeyreference.Scraper
             this.TeamName = teamname;
             this.League = league;
             this.Sponsor = sponsor;
+        }
+    }
+
+    class League
+    {
+        public string Name { get; set; }
+        public int Hockey_Category_ID { get; set; }
+
+        public League(string name, int hockey_category_id)
+        {
+            this.Name = name;
+            this.Hockey_Category_ID = hockey_category_id;
         }
     }
 }
