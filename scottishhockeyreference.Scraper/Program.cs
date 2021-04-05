@@ -20,40 +20,26 @@ namespace scottishhockeyreference.Scraper
 
             // Pass the handler to httpclient(from you are calling api)
             client = new HttpClient(clientHandler);
-            await PrintLeagues();
+            
+
+            await ScrapeNewTeams();
         }
 
-        static async Task PrintLeagues()
+        static async Task ScrapeLeagues()
         {
             var config = Configuration.Default.WithDefaultLoader();
             var context = BrowsingContext.New(config);
             var document = await context.OpenAsync(leagueURL);
             var AllLeagues = document.QuerySelectorAll("h2.text-uppercase");
-            var category = 1;
 
             foreach (var item in AllLeagues)
             {
-                if (item.TextContent.Contains("Men"))
-                {
-                    category = 1;
-                }
-                if (item.TextContent.Contains("Women"))
-                {
-                    category = 2;
-                }
-                if (item.TextContent.Contains("Men") && item.TextContent.Contains("Indoor"))
-                {
-                    category = 3;
-                }
-                if (item.TextContent.Contains("Women") && item.TextContent.Contains("Indoor"))
-                {
-                    category = 4;
-                }
-                await SaveLeague(item.TextContent, category);
+                await SaveLeague(item.TextContent, GetHockeyCategoryByName(item.TextContent));
+                Console.WriteLine("Here");
             }
         }
 
-        static async Task PrintAllTeams()
+        static async Task ScrapeTeamNames()
         {
             var TeamList = new List<string>();
             var config = Configuration.Default.WithDefaultLoader();
@@ -82,11 +68,15 @@ namespace scottishhockeyreference.Scraper
             }
         }
 
-        static async Task PrintAllInfo()
+        static async Task ScrapeNewTeams()
         {
             var config = Configuration.Default.WithDefaultLoader();
             var context = BrowsingContext.New(config);
             var document = await context.OpenAsync(leagueURL);
+            var leagueResponse = await client.GetAsync("http://localhost:33988/api/Leagues");
+            leagueResponse.EnsureSuccessStatusCode();
+            var leagueResponseBody = await leagueResponse.Content.ReadAsStringAsync();
+            var leagueList = JsonConvert.DeserializeObject<List<League>>(leagueResponseBody);
 
             // Get all leagues
             var LeagueList = new List<string>();
@@ -101,11 +91,12 @@ namespace scottishhockeyreference.Scraper
             int index = 0;
             _ = document.QuerySelectorAll("div.tableWrap");
 
-            // Loop through all league tables
+            // For each league table
             var leagueTeams = document.QuerySelectorAll("table.league-standings");
             foreach(var league in leagueTeams)
             {
-                // Loop through each row in league
+                var rank = 1;
+                // For each row in league
                 var teamRow = league.QuerySelectorAll("tr.mobile-border");
                 foreach(var div in teamRow)
                 {
@@ -135,19 +126,52 @@ namespace scottishhockeyreference.Scraper
                         }
                         i++;
                     }
-                    await SaveTeam(currentLeague, currentTeam, currentSponsor);
+                    // Get Category
+                    var category = GetHockeyCategoryByName(currentTeam);
+                    var currentLeague_ID = GetLeagueIDByName(leagueList, currentLeague);
+
+                    await SaveTeam(currentLeague_ID, currentTeam, currentSponsor, category, rank);
+                    rank++;
                 }
                 index++;
             }
         }
 
-        public static async Task SaveTeam(string league, string team, string sponsor)
+        private static int GetLeagueIDByName(List<League> leagueList, string currentLeague)
         {
-            var teamToPost = new Team(team, league, sponsor);
-            Console.WriteLine(teamToPost);
+            foreach(var i in leagueList)
+            {
+                if(i.Name.Equals(currentLeague))
+                {
+                    return i.Id;
+                }
+            }
+            return 0;
+        }
 
-            var response = await client.PostAsJsonAsync("api/Teams", teamToPost);
-            // Console.WriteLine(response);
+        private static int GetHockeyCategoryByName(string teamname)
+        {
+            if (teamname.Contains("Women") && teamname.Contains("Indoor"))
+            {
+                return 4;
+            }
+            if (teamname.Contains("Men") && teamname.Contains("Indoor"))
+            {
+                return 3;
+            }
+            if (teamname.Contains("Women"))
+            {
+                return 2;
+            }
+            return 1;
+        }
+
+        public static async Task SaveTeam(int league, string team, string sponsor, int category, int rank)
+        {
+            var teamToPost = new Team(team, league, sponsor, category, rank);
+            Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
+
+            await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
 
         }
 
@@ -164,19 +188,24 @@ namespace scottishhockeyreference.Scraper
     class Team
     {
         public string TeamName { get; set; }
-        public string League { get; set; }
+        public int League_ID { get; set; }
         public string Sponsor { get; set; }
+        public int Hockey_Category_ID { get; }
+        public int League_Rank { get; }
 
-        public Team(string teamname, string league, string sponsor)
+        public Team(string teamname, int league, string sponsor, int hockey_category_id, int league_rank)
         {
             this.TeamName = teamname;
-            this.League = league;
+            this.League_ID = league;
             this.Sponsor = sponsor;
+            this.Hockey_Category_ID = hockey_category_id;
+            this.League_Rank = league_rank;
         }
     }
 
     class League
     {
+        public int Id { get; }
         public string Name { get; set; }
         public int Hockey_Category_ID { get; set; }
 
