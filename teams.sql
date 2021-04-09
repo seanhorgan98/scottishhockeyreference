@@ -1,7 +1,7 @@
 ﻿CREATE TABLE `teams` (
   `ID` int NOT NULL AUTO_INCREMENT,
   `Teamname` varchar(255) DEFAULT NULL,
-  `League_ID` int DEFAULT NULL,
+  `League_ID` int NOT NULL,
   `Sponsor` varchar(255) DEFAULT NULL,
   `Movement` int NOT NULL DEFAULT '0',
   `Rating` int DEFAULT NULL,
@@ -21,12 +21,12 @@
   `TotalPlayed` int NOT NULL DEFAULT '0',
   `TotalPoints` int NOT NULL DEFAULT '0',
   `TotalWon` int NOT NULL DEFAULT '0',
-  `Hockey_Category_ID` int DEFAULT NULL,
-  `League_Rank` int DEFAULT NULL,
+  `Hockey_Category_ID` int NOT NULL,
+  `League_Rank` int NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `Id_UNIQUE` (`ID`),
   KEY `League_ID_idx` (`League_ID`),
   KEY `Hockey_Category_ID_idx` (`Hockey_Category_ID`),
   CONSTRAINT `FK_teams_hockey_category` FOREIGN KEY (`Hockey_Category_ID`) REFERENCES `hockey_categories` (`ID`),
   CONSTRAINT `FK_teams_leagues` FOREIGN KEY (`League_ID`) REFERENCES `leagues` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=279 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=833 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
