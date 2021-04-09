@@ -22,7 +22,7 @@ namespace scottishhockeyreference.Scraper
             client = new HttpClient(clientHandler);
 
 
-            await ScrapeNewTeams();
+            await ScrapePoints();
         }
 
         static async Task ScrapeLeagues()
@@ -35,6 +35,126 @@ namespace scottishhockeyreference.Scraper
             foreach (var item in AllLeagues)
             {
                 await SaveLeague(item.TextContent, GetLeagueHockeyCategoryByName(item.TextContent));
+            }
+        }
+
+        static async Task ScrapePoints()
+        {
+            var config = Configuration.Default.WithDefaultLoader();
+            var context = BrowsingContext.New(config);
+            var document = await context.OpenAsync(leagueURL);
+
+            // Get list of all teams
+            var teamResponse = await client.GetAsync("http://localhost:5000/api/Leagues");
+            teamResponse.EnsureSuccessStatusCode();
+            var teamResponseBody = await teamResponse.Content.ReadAsStringAsync();
+            var teamList = JsonConvert.DeserializeObject<List<Team>>(teamResponseBody);
+
+            int played = 0;
+            int won = 0;
+            int drawn = 0;
+            int lost = 0;
+            int gfor = 0;
+            int gagainst = 0;
+            int gd = 0;
+            int points = 0;
+
+            // For each league table
+            var leagueTeams = document.QuerySelectorAll("table.league-standings");
+            foreach(var league in leagueTeams)
+            {
+                // For each row in league
+                var teamRow = league.QuerySelectorAll("tr.mobile-border");
+                foreach(var div in teamRow)
+                {
+                    string currentTeam = "";
+                    // Take only the teamname and the sponsor
+                    var teamDetails = div.QuerySelectorAll("th.no-border.team-details");
+                    int i = 0;
+                    foreach (var item in teamDetails)
+                    {
+                        if(i==1)
+                        {
+                            currentTeam = item.TextContent;
+
+                        }
+                        i++;
+                    }
+                    var scoreDetails = div.QuerySelectorAll("th.no-border.text-center.scores");
+                    int j = 0;
+                    foreach (var item in scoreDetails)
+                    {
+                        if (j == 0)
+                        {
+                            j++;
+                            continue;
+                        }
+                        else if (j == 1)
+                        {
+                            // Played
+                            played = Int32.Parse(item.TextContent);
+                        }
+                        else if (j == 2)
+                        {
+                            // Won
+                            won = Int32.Parse(item.TextContent);
+                        }
+                        else if (j == 3)
+                        {
+                            // Drawn
+                            drawn = Int32.Parse(item.TextContent);
+                        }
+                        else if (j == 4)
+                        {
+                            // Lost
+                            lost = Int32.Parse(item.TextContent);
+                        }
+                        else if (j == 5)
+                        {
+                            // Goals For
+                            gfor = Int32.Parse(item.TextContent);
+                        }
+                        else if (j == 6)
+                        {
+                            // Goals Against
+                            gagainst = Int32.Parse(item.TextContent);
+                        }
+                        else if (j == 7)
+                        {
+                            // Goal Difference
+                            gd = Int32.Parse(item.TextContent);
+                        }
+                        else if (j == 8)
+                        {
+                            // Points
+                            points = Int32.Parse(item.TextContent);
+                        }
+                        j++;
+                    }
+                    // Update team with new points
+                    var teamToUpdate = new Team();
+                    teamToUpdate.Teamname = currentTeam;
+                    foreach (var team in teamList)
+                    {
+                        if (team.Teamname.Equals(currentTeam))
+                        {
+                            teamToUpdate.ID = team.ID;
+                        }
+                    }
+                    teamToUpdate.SeasonPlayed = played;
+                    teamToUpdate.SeasonWon = won;
+                    teamToUpdate.SeasonDrawn = drawn;
+                    teamToUpdate.SeasonLost = lost;
+                    teamToUpdate.SeasonGoalsFor = gfor;
+                    teamToUpdate.SeasonGoalsAgainst = gagainst;
+                    teamToUpdate.SeasonGoalDifference = gd;
+                    teamToUpdate.SeasonPoints = points;
+
+                    System.Console.WriteLine(JsonConvert.SerializeObject(teamToUpdate));
+                    // await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
+                    // var response = await client.PutAsJsonAsync("http://localhost:5000/api/Teams", teamToUpdate);
+                    // System.Console.WriteLine(response);
+                }
             }
         }
 
@@ -129,7 +249,10 @@ namespace scottishhockeyreference.Scraper
                         i++;
                     }
                     // Get Category
-                    var teamToPost = new Team(currentTeam, 0, currentSponsor, 0, rank);
+                    var teamToPost = new Team();
+                    teamToPost.Teamname = currentTeam;
+                    teamToPost.Sponsor = currentSponsor;
+                    teamToPost.League_Rank = rank;
                     GetLeagueIDAndCategoryByName(leagueList, currentLeague, teamToPost);
 
                     await SaveTeam(teamToPost);
@@ -190,19 +313,23 @@ namespace scottishhockeyreference.Scraper
 
     class Team
     {
+        public int ID { get; set; }
         public string Teamname { get; set; }
         public int League_ID { get; set; }
         public string Sponsor { get; set; }
         public int Hockey_Category_ID { get; set; }
         public int League_Rank { get; set; }
+        public int SeasonDrawn { get; set; }
+        public int SeasonGoalDifference { get; set; }
+        public int SeasonGoalsAgainst { get; set; }
+        public int SeasonGoalsFor { get; set; }
+        public int SeasonLost { get; set; }
+        public int SeasonPlayed { get; set; }
+        public int SeasonPoints { get; set; }
+        public int SeasonWon { get; set; }
 
-        public Team(string teamname, int league_id, string sponsor, int hockey_category_id, int league_rank)
+        public Team()
         {
-            this.Teamname = teamname;
-            this.League_ID = league_id;
-            this.Sponsor = sponsor;
-            this.Hockey_Category_ID = hockey_category_id;
-            this.League_Rank = league_rank;
         }
     }
 
