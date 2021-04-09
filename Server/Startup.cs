@@ -29,6 +29,8 @@ namespace scottishhockeyreference.Server
                                                opt.UseMySql(mySqlConnectionStr));
             services.AddDbContext<TeamContext>(opt =>
                                                opt.UseMySql(mySqlConnectionStr));
+            services.AddDbContext<LeagueContext>(opt =>
+                                               opt.UseMySql(mySqlConnectionStr));
             services.AddControllersWithViews();
             services.AddRazorPages();
 

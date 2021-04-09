@@ -5,12 +5,15 @@ namespace Server.Models
     public class Fixture
     {
         public long Id { get; set; }
-        public string Location { get; set; }
-        public string League { get; set; }
-        public string teamOne { get; set; }
-        public string teamTwo { get; set; }
-        public int teamOneScore { get; set; }
-        public int teamTwoScore { get; set; }
-        public DateTime fixtureDate { get; set; }
+        public DateTime Date { get; set; }
+        public int Team_1_ID { get; set; }
+        public int Team_2_ID { get; set; }
+        public int Location_ID { get; set; }
+        public int Season_ID { get; set; }
+        public int League_ID { get; set; }
+        public int Cup_ID { get; set; }
+        public int Team_1_Score { get; set; }
+        public int Team_2_Score { get; set; }
+        public int Elo_Change { get; set; }
     }
 }

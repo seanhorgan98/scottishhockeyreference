@@ -24,14 +24,14 @@ namespace Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Team>>> GetTeams()
         {
-            return await _context.Teams.ToListAsync();
+            return await _context.teams.ToListAsync();
         }
 
         // GET: api/Teams/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Team>> GetTeam(long id)
         {
-            var team = await _context.Teams.FindAsync(id);
+            var team = await _context.teams.FindAsync(id);
 
             if (team == null)
             {
@@ -77,7 +77,7 @@ namespace Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Team>> PostTeam(Team team)
         {
-            _context.Teams.Add(team);
+            _context.teams.Add(team);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetTeam), new { id = team.Id }, team);
@@ -87,13 +87,13 @@ namespace Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTeam(long id)
         {
-            var team = await _context.Teams.FindAsync(id);
+            var team = await _context.teams.FindAsync(id);
             if (team == null)
             {
                 return NotFound();
             }
 
-            _context.Teams.Remove(team);
+            _context.teams.Remove(team);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -101,7 +101,7 @@ namespace Server.Controllers
 
         private bool TeamExists(long id)
         {
-            return _context.Teams.Any(e => e.Id == id);
+            return _context.teams.Any(e => e.Id == id);
         }
     }
 }

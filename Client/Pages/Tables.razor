@@ -1,4 +1,4 @@
-@page "/leagues"
+@page "/tables"
 @using System.Net.Http.Json
 @inject HttpClient httpClient
 
@@ -201,8 +201,8 @@
     // private Team selectedItem = null;
 
     // private HashSet<Team> selectedItems = new HashSet<Team>();
-
-    private Team[] Teams;
+    private List<Team> Teams;
+    private List<League> LeagueNames;
 
     private List<string> MensLeagueNames = new List<string>();
     private List<string> WomensLeagueNames = new List<string>();
@@ -211,36 +211,42 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var results = await httpClient.GetFromJsonAsync<List<Team>>("api/Teams");
-        Teams = results.OrderByDescending(Team => Team.SeasonPoints).ToArray();
+        var teamresults = await httpClient.GetFromJsonAsync<List<Team>>("api/Teams");
+        Teams = teamresults.OrderByDescending(Team => Team.SeasonPoints).ToList();
+
+        var leagueresults = await httpClient.GetFromJsonAsync<List<League>>("api/Leagues");
+        LeagueNames = leagueresults.ToList();
 
         int i = 1;
         foreach(var item in Teams)
         {
+            item.League = LeagueNames.FirstOrDefault(x => x.Id == item.League_ID).Name;
+
             item.Position = i;
             i++;
-            if(item.League.Contains("Women") && item.League.Contains("Indoor"))
+
+            if(item.Hockey_Category_ID == 1)
             {
-                if (!WomensIndoorLeagueNames.Contains(item.League))
-                    WomensIndoorLeagueNames.Add(item.League);
+                if (!MensLeagueNames.Contains(item.League))
+                    MensLeagueNames.Add(item.League);
                 continue;
             }
-            else if(item.League.Contains("Men") && item.League.Contains("Indoor"))
-            {
-                if (!MensIndoorLeagueNames.Contains(item.League))
-                    MensIndoorLeagueNames.Add(item.League);
-                continue;
-            }
-            else if(item.League.Contains("Women"))
+            else if(item.Hockey_Category_ID == 2)
             {
                 if (!WomensLeagueNames.Contains(item.League))
                     WomensLeagueNames.Add(item.League);
                 continue;
             }
-            else if(item.League.Contains("Men"))
+            else if(item.Hockey_Category_ID == 3)
             {
-                if (!MensLeagueNames.Contains(item.League))
-                    MensLeagueNames.Add(item.League);
+                if (!MensIndoorLeagueNames.Contains(item.League))
+                    MensIndoorLeagueNames.Add(item.League);
+                continue;
+            }
+            if(item.Hockey_Category_ID == 4)
+            {
+                if (!WomensIndoorLeagueNames.Contains(item.League))
+                    WomensIndoorLeagueNames.Add(item.League);
                 continue;
             }
         }
@@ -271,9 +277,11 @@
         public int SeasonGoalsAgainst { get; set; }
         public int SeasonGoalDifference { get; set; }
         public int SeasonPoints { get; set; }
+        public int League_ID { get; set; }
         public string League { get; set; }
+        public int Hockey_Category_ID { get; set; }
 
-        public Team(string teamname, int seasonplayed, int seasonwon, int seasondrawn, int seasonlost, int seasongoalsfor, int seasongoalsagainst, int seasongoaldifference, int seasonpoints, string league)
+        public Team(string teamname, int seasonplayed, int seasonwon, int seasondrawn, int seasonlost, int seasongoalsfor, int seasongoalsagainst, int seasongoaldifference, int seasonpoints, int league_id, int hockey_category_id)
         {
             this.TeamName = teamname;
             this.SeasonPlayed = seasonplayed;
@@ -284,7 +292,22 @@
             this.SeasonGoalsAgainst = seasongoalsagainst;
             this.SeasonGoalDifference = seasongoaldifference;
             this.SeasonPoints = seasonpoints;
-            this.League = league;
+            this.League_ID = league_id;
+            this.Hockey_Category_ID = hockey_category_id;
+        }
+    }
+
+    class League
+    {
+        public int Id { get; }
+        public string Name { get; set; }
+        public int Hockey_Category_ID { get; set; }
+
+        public League(int id, string name, int hockey_category_id)
+        {
+            this.Id = id;
+            this.Name = name;
+            this.Hockey_Category_ID = hockey_category_id;
         }
     }
 }

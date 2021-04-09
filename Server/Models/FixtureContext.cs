@@ -9,6 +9,6 @@ namespace Server.Models
         {
         }
 
-        public DbSet<Fixture> Fixtures { get; set; }
+        public DbSet<Fixture> fixtures { get; set; }
     }
 }

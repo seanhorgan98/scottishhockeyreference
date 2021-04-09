@@ -8,7 +8,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "scottishhockeyreference.Cli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "scottishhockeyreference.Shared", "Shared\scottishhockeyreference.Shared.csproj", "{9A154127-FE5F-4008-889F-51988F1EEEC9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "scottishhockeyreference.Scraper", "scottishhockeyreference.Scraper\scottishhockeyreference.Scraper.csproj", "{95594E4C-61B8-43CB-9711-5943CC734089}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "scottishhockeyreference.Scraper", "scottishhockeyreference.Scraper\scottishhockeyreference.Scraper.csproj", "{95594E4C-61B8-43CB-9711-5943CC734089}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{8AB1F7BC-70E2-4C44-8982-B58A003ED874}"
+	ProjectSection(SolutionItems) = preProject
+		cups.sql = cups.sql
+		fixtures.sql = fixtures.sql
+		hockey_categories.sql = hockey_categories.sql
+		leagues.sql = leagues.sql
+		locations.sql = locations.sql
+		seasons.sql = seasons.sql
+		teams.sql = teams.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

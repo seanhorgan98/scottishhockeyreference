@@ -22,14 +22,14 @@ namespace Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Fixture>>> GetFixtures()
         {
-            return await _context.Fixtures.ToListAsync();
+            return await _context.fixtures.ToListAsync();
         }
 
         // GET: api/Fixture/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Fixture>> GetFixture(long id)
         {
-            var fixture = await _context.Fixtures.FindAsync(id);
+            var fixture = await _context.fixtures.FindAsync(id);
 
             if (fixture == null)
             {
@@ -75,7 +75,7 @@ namespace Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Fixture>> PostFixture(Fixture fixture)
         {
-            _context.Fixtures.Add(fixture);
+            _context.fixtures.Add(fixture);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetFixture), new { id = fixture.Id }, fixture);
@@ -85,13 +85,13 @@ namespace Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFixture(long id)
         {
-            var fixture = await _context.Fixtures.FindAsync(id);
+            var fixture = await _context.fixtures.FindAsync(id);
             if (fixture == null)
             {
                 return NotFound();
             }
 
-            _context.Fixtures.Remove(fixture);
+            _context.fixtures.Remove(fixture);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -99,7 +99,7 @@ namespace Server.Controllers
 
         private bool FixtureExists(long id)
         {
-            return _context.Fixtures.Any(e => e.Id == id);
+            return _context.fixtures.Any(e => e.Id == id);
         }
     }
 }

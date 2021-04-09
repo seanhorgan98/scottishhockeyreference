@@ -9,6 +9,6 @@ namespace Server.Models
         {
         }
 
-        public DbSet<Team> Teams { get; set; }
+        public DbSet<Team> teams { get; set; }
     }
 }
