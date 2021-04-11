@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
 
 namespace scottishhockeyreference.Scraper
 {
@@ -21,8 +21,33 @@ namespace scottishhockeyreference.Scraper
             // Pass the handler to httpclient(from you are calling api)
             client = new HttpClient(clientHandler);
 
-
+            // databaseTest();
             await ScrapePoints();
+        }
+
+        private static void databaseTest()
+        {
+            var connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
+            MySqlConnection conn = new MySqlConnection(connectionString);
+            conn.Open();
+            List<Team> teamList = new List<Team>();
+            var sqlSelect = "SELECT * FROM teams order by id desc;";
+            MySqlCommand cmd = new MySqlCommand(sqlSelect, conn);
+            using (MySqlDataReader rdr = cmd.ExecuteReader()) {
+                while (rdr.Read()) {
+                    /* iterate once per row */
+                    var team = new Team();
+                    team.ID = rdr.GetInt32(0);
+                    team.Teamname = (rdr.IsDBNull(1)) ? "" : rdr.GetString(1);
+                    team.League_ID = rdr.GetInt32(2);
+                    team.Hockey_Category_ID = rdr.GetInt32(22);
+                    // System.Console.WriteLine("Name: " + team.Teamname + ", League ID: " + team.League_ID + ", Cat: " + team.Hockey_Category_ID);
+                    teamList.Add(team);
+                }
+            }
+            System.Console.WriteLine(teamList.Single(x => x.ID == 823).Teamname);
+
+
         }
 
         static async Task ScrapeLeagues()
@@ -45,7 +70,7 @@ namespace scottishhockeyreference.Scraper
             var document = await context.OpenAsync(leagueURL);
 
             // Get list of all teams
-            var teamResponse = await client.GetAsync("http://localhost:5000/api/Leagues");
+            var teamResponse = await client.GetAsync("http://localhost:5000/api/Teams");
             teamResponse.EnsureSuccessStatusCode();
             var teamResponseBody = await teamResponse.Content.ReadAsStringAsync();
             var teamList = JsonConvert.DeserializeObject<List<Team>>(teamResponseBody);
@@ -134,13 +159,11 @@ namespace scottishhockeyreference.Scraper
                     // Update team with new points
                     var teamToUpdate = new Team();
                     teamToUpdate.Teamname = currentTeam;
-                    foreach (var team in teamList)
-                    {
-                        if (team.Teamname.Equals(currentTeam))
-                        {
-                            teamToUpdate.ID = team.ID;
-                        }
-                    }
+                    teamToUpdate.ID = teamList.FirstOrDefault(x => x.Teamname == teamToUpdate.Teamname).ID;
+                    teamToUpdate.League_ID = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).League_ID;
+                    teamToUpdate.Hockey_Category_ID = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).Hockey_Category_ID;
+                    teamToUpdate.Sponsor = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).Sponsor;
+                    teamToUpdate.League_Rank = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).League_Rank;
                     teamToUpdate.SeasonPlayed = played;
                     teamToUpdate.SeasonWon = won;
                     teamToUpdate.SeasonDrawn = drawn;
@@ -152,8 +175,8 @@ namespace scottishhockeyreference.Scraper
 
                     System.Console.WriteLine(JsonConvert.SerializeObject(teamToUpdate));
                     // await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
-                    // var response = await client.PutAsJsonAsync("http://localhost:5000/api/Teams", teamToUpdate);
-                    // System.Console.WriteLine(response);
+                    var response = await client.PutAsJsonAsync($"http://localhost:5000/api/Teams/{teamToUpdate.ID}", teamToUpdate);
+                    System.Console.WriteLine(response);
                 }
             }
         }
