@@ -22,6 +22,8 @@ namespace scottishhockeyreference.Scraper
             client = new HttpClient(clientHandler);
 
             // databaseTest();
+            // await ScrapeLeagues();
+            // await ScrapeNewTeams();
             await ScrapePoints();
         }
 
@@ -59,6 +61,11 @@ namespace scottishhockeyreference.Scraper
 
             foreach (var item in AllLeagues)
             {
+                if (item.TextContent.Contains("Conference") || item.TextContent.Contains("Super"))
+                {
+                    System.Console.WriteLine("Skipped non-standard league: " + item.TextContent);
+                    continue;
+                }
                 await SaveLeague(item.TextContent, GetLeagueHockeyCategoryByName(item.TextContent));
             }
         }
@@ -159,24 +166,26 @@ namespace scottishhockeyreference.Scraper
                     // Update team with new points
                     var teamToUpdate = new Team();
                     teamToUpdate.Teamname = currentTeam;
-                    teamToUpdate.ID = teamList.FirstOrDefault(x => x.Teamname == teamToUpdate.Teamname).ID;
-                    teamToUpdate.League_ID = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).League_ID;
-                    teamToUpdate.Hockey_Category_ID = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).Hockey_Category_ID;
-                    teamToUpdate.Sponsor = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).Sponsor;
-                    teamToUpdate.League_Rank = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).League_Rank;
-                    teamToUpdate.SeasonPlayed = played;
-                    teamToUpdate.SeasonWon = won;
-                    teamToUpdate.SeasonDrawn = drawn;
-                    teamToUpdate.SeasonLost = lost;
-                    teamToUpdate.SeasonGoalsFor = gfor;
-                    teamToUpdate.SeasonGoalsAgainst = gagainst;
-                    teamToUpdate.SeasonGoalDifference = gd;
-                    teamToUpdate.SeasonPoints = points;
-
-                    System.Console.WriteLine(JsonConvert.SerializeObject(teamToUpdate));
-                    // await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
-                    var response = await client.PutAsJsonAsync($"http://localhost:5000/api/Teams/{teamToUpdate.ID}", teamToUpdate);
-                    System.Console.WriteLine(response);
+                    if (teamList.Any(x => x.Teamname == teamToUpdate.Teamname))
+                    {
+                        teamToUpdate.ID = teamList.FirstOrDefault(x => x.Teamname == teamToUpdate.Teamname).ID;
+                        teamToUpdate.League_ID = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).League_ID;
+                        teamToUpdate.Hockey_Category_ID = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).Hockey_Category_ID;
+                        teamToUpdate.Sponsor = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).Sponsor;
+                        teamToUpdate.League_Rank = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).League_Rank;
+                        teamToUpdate.SeasonPlayed = played;
+                        teamToUpdate.SeasonWon = won;
+                        teamToUpdate.SeasonDrawn = drawn;
+                        teamToUpdate.SeasonLost = lost;
+                        teamToUpdate.SeasonGoalsFor = gfor;
+                        teamToUpdate.SeasonGoalsAgainst = gagainst;
+                        teamToUpdate.SeasonGoalDifference = gd;
+                        teamToUpdate.SeasonPoints = points;
+                        System.Console.WriteLine(JsonConvert.SerializeObject(teamToUpdate));
+                        // await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
+                        var response = await client.PutAsJsonAsync($"http://localhost:5000/api/Teams/{teamToUpdate.ID}", teamToUpdate);
+                        System.Console.WriteLine(response);
+                    }
                 }
             }
         }
@@ -232,7 +241,6 @@ namespace scottishhockeyreference.Scraper
                 LeagueList.Add(item.TextContent);
             }
 
-
             int index = 0;
             _ = document.QuerySelectorAll("div.tableWrap");
 
@@ -240,6 +248,12 @@ namespace scottishhockeyreference.Scraper
             var leagueTeams = document.QuerySelectorAll("table.league-standings");
             foreach(var league in leagueTeams)
             {
+                if (league.TextContent.Contains("Conference") || league.TextContent.Contains("Super"))
+                {
+                    System.Console.WriteLine("Skipped non-standard league: " + league.TextContent);
+                    continue;
+                }
+                System.Console.WriteLine(index);
                 var rank = 1;
                 // For each row in league
                 var teamRow = league.QuerySelectorAll("tr.mobile-border");
