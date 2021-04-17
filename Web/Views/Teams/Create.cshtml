@@ -1,0 +1,141 @@
+﻿@model Web.Models.Team
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>Team</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Teamname" class="control-label"></label>
+                <input asp-for="Teamname" class="form-control" />
+                <span asp-validation-for="Teamname" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="League_ID" class="control-label"></label>
+                <input asp-for="League_ID" class="form-control" />
+                <span asp-validation-for="League_ID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Sponsor" class="control-label"></label>
+                <input asp-for="Sponsor" class="form-control" />
+                <span asp-validation-for="Sponsor" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Movement" class="control-label"></label>
+                <input asp-for="Movement" class="form-control" />
+                <span asp-validation-for="Movement" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Rating" class="control-label"></label>
+                <input asp-for="Rating" class="form-control" />
+                <span asp-validation-for="Rating" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SeasonDrawn" class="control-label"></label>
+                <input asp-for="SeasonDrawn" class="form-control" />
+                <span asp-validation-for="SeasonDrawn" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SeasonGoalDifference" class="control-label"></label>
+                <input asp-for="SeasonGoalDifference" class="form-control" />
+                <span asp-validation-for="SeasonGoalDifference" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SeasonGoalsAgainst" class="control-label"></label>
+                <input asp-for="SeasonGoalsAgainst" class="form-control" />
+                <span asp-validation-for="SeasonGoalsAgainst" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SeasonGoalsFor" class="control-label"></label>
+                <input asp-for="SeasonGoalsFor" class="form-control" />
+                <span asp-validation-for="SeasonGoalsFor" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SeasonLost" class="control-label"></label>
+                <input asp-for="SeasonLost" class="form-control" />
+                <span asp-validation-for="SeasonLost" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SeasonPlayed" class="control-label"></label>
+                <input asp-for="SeasonPlayed" class="form-control" />
+                <span asp-validation-for="SeasonPlayed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SeasonPoints" class="control-label"></label>
+                <input asp-for="SeasonPoints" class="form-control" />
+                <span asp-validation-for="SeasonPoints" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SeasonWon" class="control-label"></label>
+                <input asp-for="SeasonWon" class="form-control" />
+                <span asp-validation-for="SeasonWon" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TotalDrawn" class="control-label"></label>
+                <input asp-for="TotalDrawn" class="form-control" />
+                <span asp-validation-for="TotalDrawn" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TotalGoalDifference" class="control-label"></label>
+                <input asp-for="TotalGoalDifference" class="form-control" />
+                <span asp-validation-for="TotalGoalDifference" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TotalGoalsAgainst" class="control-label"></label>
+                <input asp-for="TotalGoalsAgainst" class="form-control" />
+                <span asp-validation-for="TotalGoalsAgainst" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TotalGoalsFor" class="control-label"></label>
+                <input asp-for="TotalGoalsFor" class="form-control" />
+                <span asp-validation-for="TotalGoalsFor" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TotalLost" class="control-label"></label>
+                <input asp-for="TotalLost" class="form-control" />
+                <span asp-validation-for="TotalLost" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TotalPlayed" class="control-label"></label>
+                <input asp-for="TotalPlayed" class="form-control" />
+                <span asp-validation-for="TotalPlayed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TotalPoints" class="control-label"></label>
+                <input asp-for="TotalPoints" class="form-control" />
+                <span asp-validation-for="TotalPoints" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TotalWon" class="control-label"></label>
+                <input asp-for="TotalWon" class="form-control" />
+                <span asp-validation-for="TotalWon" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Hockey_Category_ID" class="control-label"></label>
+                <input asp-for="Hockey_Category_ID" class="form-control" />
+                <span asp-validation-for="Hockey_Category_ID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="League_Rank" class="control-label"></label>
+                <input asp-for="League_Rank" class="form-control" />
+                <span asp-validation-for="League_Rank" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

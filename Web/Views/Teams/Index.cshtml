@@ -1,0 +1,168 @@
+﻿@model IEnumerable<Web.Models.Team>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Teamname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.League_ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sponsor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Movement)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Rating)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonDrawn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonGoalDifference)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonGoalsAgainst)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonGoalsFor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonLost)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonPlayed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonPoints)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonWon)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalDrawn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalGoalDifference)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalGoalsAgainst)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalGoalsFor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalLost)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalPlayed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalPoints)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalWon)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Hockey_Category_ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.League_Rank)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Teamname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.League_ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Sponsor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Movement)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Rating)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonDrawn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonGoalDifference)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonGoalsAgainst)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonGoalsFor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonLost)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonPlayed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonPoints)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonWon)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalDrawn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalGoalDifference)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalGoalsAgainst)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalGoalsFor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalLost)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalPlayed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalPoints)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalWon)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Hockey_Category_ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.League_Rank)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
