@@ -13,6 +13,7 @@ namespace scottishhockeyreference.Scraper
     {
         //static HttpClient client;
         private static readonly string leagueURL = "https://www.scottish-hockey.org.uk/league-standings/";
+        private static readonly string connectionString = "server=aa1su4hgu44u0mv.cxkd3gywhaht.eu-west-1.rds.amazonaws.com; port=3306; database=shr_prod; user=proddb; password=H4ppyF4c3; Persist Security Info=False; Connect Timeout=300";
         static async Task Main()
         {
             //var clientHandler = new HttpClientHandler
@@ -31,7 +32,6 @@ namespace scottishhockeyreference.Scraper
 
         //private static void DatabaseTest()
         //{
-        //    var connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
         //    var conn = new MySqlConnection(connectionString);
         //    conn.Open();
         //    var teamList = new List<Team>();
@@ -63,10 +63,10 @@ namespace scottishhockeyreference.Scraper
             var document = await context.OpenAsync(leagueURL);
             var AllLeagues = document.QuerySelectorAll("h2.text-uppercase");
 
-
+            System.Console.WriteLine("THERE");
             foreach (var item in AllLeagues)
             {
-                Console.WriteLine("HERE");
+                // Console.WriteLine("HERE");
                 if (item.TextContent.Contains("Conference") || item.TextContent.Contains("Super"))
                 {
                     System.Console.WriteLine("Skipped non-standard league: " + item.TextContent);
@@ -78,11 +78,10 @@ namespace scottishhockeyreference.Scraper
 
         private static void SaveLeagueSQL(string name, int category)
         {
-            var connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             MySqlCommand cmd = conn.CreateCommand();
-            cmd.CommandText = "INSERT INTO leagues (Name, Hockey_Category_ID) VALUES (@NAME, @CATEGORY)";
+            cmd.CommandText = "INSERT INTO Leagues (Name, Hockey_Category_ID) VALUES (@NAME, @CATEGORY)";
             cmd.Parameters.AddWithValue("@NAME", name);
             cmd.Parameters.AddWithValue("@CATEGORY", category);
             cmd.ExecuteNonQuery();
@@ -98,7 +97,6 @@ namespace scottishhockeyreference.Scraper
 
             // Get list of all teams
             var teamList = new List<Team>();
-            var connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             var sqlSelect = @"SELECT ID,
@@ -114,7 +112,7 @@ namespace scottishhockeyreference.Scraper
     SeasonGoalsAgainst,
     SeasonGoalDifference,
     SeasonPoints,
-    Teamname FROM teams; ";
+    Teamname FROM Teams; ";
             var cmd = new MySqlCommand(sqlSelect, conn);
             using (MySqlDataReader rdr = cmd.ExecuteReader())
             {
@@ -140,9 +138,9 @@ namespace scottishhockeyreference.Scraper
                     team.SeasonGoalDifference = rdr.GetInt32(11);
                     team.SeasonPoints = rdr.GetInt32(12);
                     teamList.Add(team);
+                    System.Console.WriteLine(team.Teamname);
                 }
             }
-            Console.WriteLine("THERE");
 
             int played = 0;
             int won = 0;
@@ -162,6 +160,7 @@ namespace scottishhockeyreference.Scraper
                 var teamRow = league.QuerySelectorAll("tr.mobile-border");
                 foreach (var div in teamRow)
                 {
+                    Console.WriteLine("THERE");
                     string currentTeam = "";
                     // Take only the teamname and the sponsor
                     var teamDetails = div.QuerySelectorAll("th.no-border.team-details");
@@ -254,11 +253,10 @@ namespace scottishhockeyreference.Scraper
 
         private static void SavePointsSQL(Team teamToUpdate)
         {
-            var connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             MySqlCommand cmd = conn.CreateCommand();
-            cmd.CommandText = @"UPDATE teams
+            cmd.CommandText = @"UPDATE Teams
 SET League_Rank = @LEAGUE_RANK,
     SeasonPlayed = @PLAYED,
     SeasonWon = @WON,
@@ -320,10 +318,9 @@ WHERE ID = @ID;";
 
             // Get Leagues from Database
             var leagueList = new List<League>();
-            var connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
             var conn = new MySqlConnection(connectionString);
             conn.Open();
-            var sqlSelect = "SELECT * FROM leagues";
+            var sqlSelect = "SELECT * FROM Leagues";
             var cmd = new MySqlCommand(sqlSelect, conn);
             using (MySqlDataReader rdr = cmd.ExecuteReader())
             {
@@ -402,7 +399,7 @@ WHERE ID = @ID;";
                         Sponsor = currentSponsor,
                         League_Rank = rank
                     };
-                    Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
+                    // Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
                     GetLeagueIDAndCategoryByName(leagueList, currentLeague, teamToPost);
 
                     SaveTeamSQL(teamToPost);
@@ -415,11 +412,10 @@ WHERE ID = @ID;";
         private static void SaveTeamSQL(Team teamToPost)
         {
             Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
-            var connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
             var conn = new MySqlConnection(connectionString);
             conn.Open();
             MySqlCommand cmd = conn.CreateCommand();
-            cmd.CommandText = "INSERT INTO teams (TeamName, League_ID, Sponsor, League_Rank, Hockey_Category_ID) " +
+            cmd.CommandText = "INSERT INTO Teams (TeamName, League_ID, Sponsor, League_Rank, Hockey_Category_ID) " +
                 "VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
             cmd.Parameters.AddWithValue("@TEAMNAME", teamToPost.Teamname);
             cmd.Parameters.AddWithValue("@LEAGUE_ID", teamToPost.League_ID);
