@@ -12,41 +12,44 @@
 }
 
 <h1>League Tables</h1>
+<hr>
 
-<ul class="nav nav-tabs">
-    <li class="nav-item">
-        <a href="#men" class="nav-link active" data-toggle="tab">Men</a>
-    </li>
-    <li class="nav-item">
-        <a href="#women" class="nav-link" data-toggle="tab">Women</a>
-    </li>
-    <li class="nav-item">
-        <a href="#menindoor" class="nav-link" data-toggle="tab">Men Indoor</a>
-    </li>
-    <li class="nav-item">
-        <a href="#womenindoor" class="nav-link" data-toggle="tab">Men Indoor</a>
-    </li>
-</ul>
-<div class="tab-content">
-    <div class="tab-pane fade show active" id="men">
-        <div class="accordion" id="accordionExample">
+<div class="container">
+    <ul id="tabs" class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a id="tab-A" href="#pane-A" class="nav-link active" data-toggle="tab" role="tab">Men</a>
+        </li>
+        <li class="nav-item">
+            <a id="tab-B" href="#pane-B" class="nav-link" data-toggle="tab" role="tab">Women</a>
+        </li>
+        <li class="nav-item">
+            <a id="tab-C" href="#pane-C" class="nav-link" data-toggle="tab" role="tab">Men Indoor</a>
+        </li>
+        <li class="nav-item">
+            <a id="tab-D" href="#pane-D" class="nav-link" data-toggle="tab" role="tab">Women Indoor</a>
+        </li>
+    </ul>
+
+
+    <div id="content" class="tab-content" role="tablist">
+        <div id="pane-A" class="card tab-pane fade show active" role="tabpanel" aria-labelledby="tab-A">
+            <!-- HEADER -->
             @{int im = 0;}
             @foreach (var league in Leagues)
             {
-                @if (league.Hockey_Category_Id != 1)
+                @if (league.Hockey_Category_Id == 1)
                 {
-                    continue;
-                }
-                <div class="card">
-                    <div class="card-header" id="headingOne_@im">
-                        <h2 class="mb-0">
-                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne_@im" aria-expanded="true" aria-controls="collapseOne_@im">
-                            @league.Name
-                            </button>
-                        </h2>
+                    <div class="card-header" role="tab" id="heading-A-@im">
+                        <h5 class="mb-0">
+                            <!-- Note: `data-parent` removed from here -->
+                            <a data-toggle="collapse" href="#collapse-A-@im" aria-expanded="true" aria-controls="collapse-A-@im">
+                                @league.Name
+                            </a>
+                        </h5>
                     </div>
 
-                    <div id="collapseOne_@im" class="collapse" aria-labelledby="headingOne_@im" data-parent="#accordionExample">
+                    <!-- CONTENT -->
+                    <div id="collapse-A-@im" class="collapse" data-parent="#content" role="tabpanel" aria-labelledby="heading-A-@im">
                         <div class="card-body">
                             <table class="table table-hover table-condensed table-responsive">
                                 <thead>
@@ -86,29 +89,30 @@
                             </table>
                         </div>
                     </div>
-                </div>
-            im++;
-        }
-    </div>
-    <div class="tab-pane fade" id="women">
-        <div class="accordion" id="accordionExample">
+                    <!-- -->
+                }
+                im++;
+            }
+            <!--  -->
+        </div>
+        <div id="pane-B" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-B">
+            <!-- HEADER -->
             @{int iw = 0;}
             @foreach (var league in Leagues)
             {
-                @if (league.Hockey_Category_Id != 2)
+                @if (league.Hockey_Category_Id == 2)
                 {
-                    continue;
-                }
-                <div class="card">
-                    <div class="card-header" id="headingOne_@iw">
-                        <h2 class="mb-0">
-                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne_@iw" aria-expanded="true" aria-controls="collapseOne_@iw">
-                            @league.Name
-                            </button>
-                        </h2>
+                    <div class="card-header" role="tab" id="heading-A-@iw">
+                        <h5 class="mb-0">
+                            <!-- Note: `data-parent` removed from here -->
+                            <a data-toggle="collapse" href="#collapse-A-@iw" aria-expanded="true" aria-controls="collapse-A-@iw">
+                                @league.Name
+                            </a>
+                        </h5>
                     </div>
 
-                    <div id="collapseOne_@iw" class="collapse" aria-labelledby="headingOne_@iw" data-parent="#accordionExample">
+                    <!-- CONTENT -->
+                    <div id="collapse-A-@iw" class="collapse" data-parent="#content" role="tabpanel" aria-labelledby="heading-A-@iw">
                         <div class="card-body">
                             <table class="table table-hover table-condensed table-responsive">
                                 <thead>
@@ -148,29 +152,30 @@
                             </table>
                         </div>
                     </div>
-                </div>
-            iw++;
-        }
-    </div>
-    <div class="tab-pane fade" id="menindoor">
-        <div class="accordion" id="accordionExample">
+                    <!-- -->
+                }
+                iw++;
+            }
+            <!--  -->
+        </div>
+        <div id="pane-C" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-C">
+            <!-- HEADER -->
             @{int imi = 0;}
             @foreach (var league in Leagues)
             {
-                @if (league.Hockey_Category_Id != 3)
+                @if (league.Hockey_Category_Id == 3)
                 {
-                    continue;
-                }
-                <div class="card">
-                    <div class="card-header" id="headingOne_@imi">
-                        <h2 class="mb-0">
-                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne_@imi" aria-expanded="true" aria-controls="collapseOne_@imi">
-                            @league.Name
-                            </button>
-                        </h2>
+                    <div class="card-header" role="tab" id="heading-A-@imi">
+                        <h5 class="mb-0">
+                            <!-- Note: `data-parent` removed from here -->
+                            <a data-toggle="collapse" href="#collapse-A-@imi" aria-expanded="true" aria-controls="collapse-A-@imi">
+                                @league.Name
+                            </a>
+                        </h5>
                     </div>
 
-                    <div id="collapseOne_@imi" class="collapse" aria-labelledby="headingOne_@imi" data-parent="#accordionExample">
+                    <!-- CONTENT -->
+                    <div id="collapse-A-@imi" class="collapse" data-parent="#content" role="tabpanel" aria-labelledby="heading-A-@imi">
                         <div class="card-body">
                             <table class="table table-hover table-condensed table-responsive">
                                 <thead>
@@ -210,29 +215,30 @@
                             </table>
                         </div>
                     </div>
-                </div>
-            imi++;
-        }
-    </div>
-    <div class="tab-pane fade" id="womenindoor">
-        <div class="accordion" id="accordionExample">
+                    <!-- -->
+                }
+                imi++;
+            }
+            <!--  -->
+        </div>
+        <div id="pane-D" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-D">
+            <!-- HEADER -->
             @{int iwi = 0;}
             @foreach (var league in Leagues)
             {
-                @if (league.Hockey_Category_Id != 4)
+                @if (league.Hockey_Category_Id == 4)
                 {
-                    continue;
-                }
-                <div class="card">
-                    <div class="card-header" id="headingOne_@iwi">
-                        <h2 class="mb-0">
-                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne_@iwi" aria-expanded="true" aria-controls="collapseOne_@iwi">
-                            @league.Name
-                            </button>
-                        </h2>
+                    <div class="card-header" role="tab" id="heading-A-@iwi">
+                        <h5 class="mb-0">
+                            <!-- Note: `data-parent` removed from here -->
+                            <a data-toggle="collapse" href="#collapse-A-@iwi" aria-expanded="true" aria-controls="collapse-A-@iwi">
+                                @league.Name
+                            </a>
+                        </h5>
                     </div>
 
-                    <div id="collapseOne_@iwi" class="collapse" aria-labelledby="headingOne_@iwi" data-parent="#accordionExample">
+                    <!-- CONTENT -->
+                    <div id="collapse-A-@iwi" class="collapse" data-parent="#content" role="tabpanel" aria-labelledby="heading-A-@iwi">
                         <div class="card-body">
                             <table class="table table-hover table-condensed table-responsive">
                                 <thead>
@@ -272,18 +278,11 @@
                             </table>
                         </div>
                     </div>
-                </div>
-            iwi++;
-        }
+                    <!-- -->
+                }
+                iwi++;
+            }
+            <!--  -->
+        </div>
     </div>
 </div>
-
-
-
-
-
-
-
-
-
-
