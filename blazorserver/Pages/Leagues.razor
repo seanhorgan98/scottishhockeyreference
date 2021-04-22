@@ -1,0 +1,255 @@
+@page "/Leagues"
+@using DataLibrary
+@using blazorserver.Models
+@using Microsoft.Extensions.Configuration
+@inject IDataAccess _data
+@inject IConfiguration _config
+
+<h3>League Tables</h3>
+
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+    @if (_teams == null)
+    {
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+    }
+    <MudTabPanel Text="Men's">
+        <MudExpansionPanels MultiExpansion="true" Elevation="0">
+            @foreach (var league in MensLeagues)
+            {
+                <MudExpansionPanel Text="@league.Name">
+                    <table class="table table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Position</th>
+                                <th scope="col">Team</th>
+                                <th scope="col">Played</th>
+                                <th scope="col">Won</th>
+                                <th scope="col">Drawn</th>
+                                <th scope="col">Lost</th>
+                                <th scope="col">Goals For</th>
+                                <th scope="col">Goals Against</th>
+                                <th scope="col">Goal Difference</th>
+                                <th scope="col">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int position = 0;}
+                            @foreach (var team in _teams)
+                            {
+                                if (!teamIsVisible(league.Id, team))
+                                    continue;
+                                position += 1;
+                                <tr>
+                                    <td>@position</td>
+                                    <td>@team.Teamname</td>
+                                    <td>@team.SeasonPlayed</td>
+                                    <td>@team.SeasonWon</td>
+                                    <td>@team.SeasonDrawn</td>
+                                    <td>@team.SeasonLost</td>
+                                    <td>@team.SeasonGoalsFor</td>
+                                    <td>@team.SeasonGoalsAgainst</td>
+                                    <td>@team.SeasonGoalDifference</td>
+                                    <td>@team.SeasonPoints</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
+    </MudTabPanel>
+    <MudTabPanel Text="Women's">
+        <MudExpansionPanels MultiExpansion="true" Elevation="0">
+            @foreach (var league in WomensLeagues)
+            {
+                <MudExpansionPanel Text="@league.Name">
+                    <table class="table table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Position</th>
+                                <th scope="col">Team</th>
+                                <th scope="col">Played</th>
+                                <th scope="col">Won</th>
+                                <th scope="col">Drawn</th>
+                                <th scope="col">Lost</th>
+                                <th scope="col">Goals For</th>
+                                <th scope="col">Goals Against</th>
+                                <th scope="col">Goal Difference</th>
+                                <th scope="col">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int position = 0;}
+                            @foreach (var team in _teams)
+                            {
+                                if (!teamIsVisible(league.Id, team))
+                                    continue;
+                                position += 1;
+                                <tr>
+                                    <td>@position</td>
+                                    <td>@team.Teamname</td>
+                                    <td>@team.SeasonPlayed</td>
+                                    <td>@team.SeasonWon</td>
+                                    <td>@team.SeasonDrawn</td>
+                                    <td>@team.SeasonLost</td>
+                                    <td>@team.SeasonGoalsFor</td>
+                                    <td>@team.SeasonGoalsAgainst</td>
+                                    <td>@team.SeasonGoalDifference</td>
+                                    <td>@team.SeasonPoints</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
+    </MudTabPanel>
+    <MudTabPanel Text="Men's Indoor">
+        <MudExpansionPanels MultiExpansion="true" Elevation="0">
+            @foreach (var league in MensIndoorLeagues)
+            {
+                <MudExpansionPanel Text="@league.Name">
+                    <table class="table table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Position</th>
+                                <th scope="col">Team</th>
+                                <th scope="col">Played</th>
+                                <th scope="col">Won</th>
+                                <th scope="col">Drawn</th>
+                                <th scope="col">Lost</th>
+                                <th scope="col">Goals For</th>
+                                <th scope="col">Goals Against</th>
+                                <th scope="col">Goal Difference</th>
+                                <th scope="col">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int position = 0;}
+                            @foreach (var team in _teams)
+                            {
+                                if (!teamIsVisible(league.Id, team))
+                                    continue;
+                                position += 1;
+                                <tr>
+                                    <td>@position</td>
+                                    <td>@team.Teamname</td>
+                                    <td>@team.SeasonPlayed</td>
+                                    <td>@team.SeasonWon</td>
+                                    <td>@team.SeasonDrawn</td>
+                                    <td>@team.SeasonLost</td>
+                                    <td>@team.SeasonGoalsFor</td>
+                                    <td>@team.SeasonGoalsAgainst</td>
+                                    <td>@team.SeasonGoalDifference</td>
+                                    <td>@team.SeasonPoints</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
+    </MudTabPanel>
+    <MudTabPanel Text="Women's Indoor">
+        <MudExpansionPanels MultiExpansion="true" Elevation="0">
+            @foreach (var league in WomensIndoorLeagues)
+            {
+                <MudExpansionPanel Text="@league.Name">
+                    <table class="table table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Position</th>
+                                <th scope="col">Team</th>
+                                <th scope="col">Played</th>
+                                <th scope="col">Won</th>
+                                <th scope="col">Drawn</th>
+                                <th scope="col">Lost</th>
+                                <th scope="col">Goals For</th>
+                                <th scope="col">Goals Against</th>
+                                <th scope="col">Goal Difference</th>
+                                <th scope="col">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int position = 0;}
+                            @foreach (var team in _teams)
+                            {
+                                if (!teamIsVisible(league.Id, team))
+                                    continue;
+                                position += 1;
+                                <tr>
+                                    <td>@position</td>
+                                    <td>@team.Teamname</td>
+                                    <td>@team.SeasonPlayed</td>
+                                    <td>@team.SeasonWon</td>
+                                    <td>@team.SeasonDrawn</td>
+                                    <td>@team.SeasonLost</td>
+                                    <td>@team.SeasonGoalsFor</td>
+                                    <td>@team.SeasonGoalsAgainst</td>
+                                    <td>@team.SeasonGoalDifference</td>
+                                    <td>@team.SeasonPoints</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
+    </MudTabPanel>
+</MudTabs>
+
+@code {
+    private List<Team> _teams;
+    private List<League> _leagues;
+
+    private List<League> MensLeagues = new List<League>();
+    private List<League> WomensLeagues = new List<League>();
+    private List<League> MensIndoorLeagues = new List<League>();
+    private List<League> WomensIndoorLeagues = new List<League>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        _teams = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams;", new {}, _config.GetConnectionString("default"));
+        _leagues = await _data.LoadData<League, dynamic>("SELECT * FROM Leagues;", new {}, _config.GetConnectionString("default"));
+        foreach (var l in _leagues)
+        {
+            switch (l.Hockey_Category_Id)
+            {
+                case 1:
+                {
+                    if (!MensLeagues.Contains(l))
+                        MensLeagues.Add(l);
+                    continue;
+                }
+                case 2:
+                {
+                    if (!WomensLeagues.Contains(l))
+                        WomensLeagues.Add(l);
+                    continue;
+                }
+                case 3:
+                {
+                    if (!MensIndoorLeagues.Contains(l))
+                        MensIndoorLeagues.Add(l);
+                    continue;
+                }
+                case 4:
+                {
+                    if (!WomensIndoorLeagues.Contains(l))
+                        WomensIndoorLeagues.Add(l);
+                    continue;
+                }
+            }
+        }
+        MensLeagues.OrderBy(x => x.Name).ToList();
+        MensIndoorLeagues.OrderBy(x => x.Name).ToList();
+        WomensLeagues.OrderBy(x => x.Name).ToList();
+        WomensIndoorLeagues.OrderBy(x => x.Name).ToList();
+    }
+
+
+    private bool teamIsVisible(int league, Team team)
+    {
+        return team.League_ID.Equals(league);
+    }
+}
