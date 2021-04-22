@@ -12,17 +12,57 @@
 }
 else
 {
-    @foreach (var team in _teams)
-    {
-        <p>@team.Teamname</p>
-    }
+    <MudTable Items="@_teams" Dense="true" Hover="true" Bordered="false" Striped="false" Filter="new Func<Team,bool>(FilterFunc)" @bind-SelectedItem="selectedItem">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">List of all teams</MudText>
+            <MudToolBarSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<Team, object>(x=>x.Teamname)">Name</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Team, object>(x=>x.Sponsor)">Sponsor</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Team, object>(x=>x.SeasonPlayed)">Played</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Team, object>(x=>x.SeasonWon)">Won</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Team, object>(x=>x.SeasonDrawn)">Drawn</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Team, object>(x=>x.SeasonLost)">Lost</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Team, object>(x=>x.SeasonGoalsFor)">GF</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Team, object>(x=>x.SeasonGoalsAgainst)">GA</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Team, object>(x=>x.SeasonGoalDifference)">GD</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Team, object>(x=>x.SeasonPoints)">Points</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Teamname</MudTd>
+            <MudTd DataLabel="Sponsor">@context.Sponsor</MudTd>
+            <MudTd DataLabel="Played">@context.SeasonPlayed</MudTd>
+            <MudTd DataLabel="Won">@context.SeasonWon</MudTd>
+            <MudTd DataLabel="Drawn">@context.SeasonDrawn</MudTd>
+            <MudTd DataLabel="Lost">@context.SeasonLost</MudTd>
+            <MudTd DataLabel="GF">@context.SeasonGoalsFor</MudTd>
+            <MudTd DataLabel="GA">@context.SeasonGoalsAgainst</MudTd>
+            <MudTd DataLabel="GD">@context.SeasonGoalDifference</MudTd>
+            <MudTd DataLabel="Points">@context.SeasonPoints</MudTd>
+        </RowTemplate>
+    </MudTable>
 }
 
 @code {
     private List<Team> _teams;
+    private string searchString = "";
+    private Team selectedItem = null;
+    private HashSet<Team> selectedItems = new HashSet<Team>();
 
     protected override async Task OnInitializedAsync()
     {
         _teams = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams;", new {}, _config.GetConnectionString("default"));
+        // Add call for leagues to match up and display
+    }
+    
+    private bool FilterFunc(Team element)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Teamname.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }
