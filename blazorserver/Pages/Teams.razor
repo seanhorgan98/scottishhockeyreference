@@ -12,7 +12,7 @@
 }
 else
 {
-    <MudTable Items="@_teams" Dense="true" Hover="true" Bordered="false" Striped="false" Filter="new Func<Team,bool>(FilterFunc)" @bind-SelectedItem="selectedItem">
+    <MudTable Items="@_teams" Dense="true" Hover="true" Bordered="false" Striped="false" Filter="new Func<Team,bool>(FilterFunc)" @bind-SelectedItem="selectedItem" Breakpoint="Breakpoint.Sm" FixedHeader="true">
         <ToolBarContent>
             <MudText Typo="Typo.h6">List of all teams</MudText>
             <MudToolBarSpacer />
