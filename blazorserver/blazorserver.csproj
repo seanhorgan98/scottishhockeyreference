@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MudBlazor" Version="5.0.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataLibrary\DataLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="site\web.config" />
+    <_ContentIncludedByDefault Remove="site\appsettings.Development.json" />
+    <_ContentIncludedByDefault Remove="site\appsettings.json" />
+    <_ContentIncludedByDefault Remove="site\appsettings.Production.json" />
+    <_ContentIncludedByDefault Remove="site\blazorserver.deps.json" />
+    <_ContentIncludedByDefault Remove="site\blazorserver.runtimeconfig.json" />
+  </ItemGroup>
+
+</Project>

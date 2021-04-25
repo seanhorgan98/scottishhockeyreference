@@ -1,0 +1,50 @@
+@page "/Rankings"
+@using DataLibrary
+@using blazorserver.Models
+@using Microsoft.Extensions.Configuration
+@inject IDataAccess _data
+@inject IConfiguration _config
+
+<hr/>
+<h3>Rankings</h3>
+
+@if (_teams == null)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+}
+else
+{
+    <MudTable Items="@_teams" Hover="true" Breakpoint="Breakpoint.Sm" SortLabel="Sort By">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<Team, object>(x=>x.Rating)">Rating</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<Team, object>(x=>x.Movement)">Movement</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            @{ var url = "team/" + context.Id;}
+            <MudTd DataLabel="Name"><NavLink class="nav-link" href="@url">@context.Teamname</NavLink></MudTd>
+            <MudTd DataLabel="Rating">@context.Rating</MudTd>
+
+            @if (@context.Movement > 0)
+            {
+                <MudTd DataLabel="Movement" Style="color: green">+@context.Movement</MudTd>
+            }
+            else if (@context.Movement < 0)
+            {
+                <MudTd DataLabel="Movement" Style="color: red">-@context.Movement</MudTd>
+            }
+            else
+            {
+                <MudTd> </MudTd>
+            }
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private List<Team> _teams;
+    protected override async Task OnInitializedAsync()
+    {
+        _teams = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams;", new {}, _config.GetConnectionString("default"));
+    }
+}

@@ -1,0 +1,95 @@
+@page "/team/{Id}"
+@using DataLibrary
+@using blazorserver.Models
+@using Microsoft.Extensions.Configuration
+@inject IDataAccess _data
+@inject IConfiguration _config
+
+@if (Team == null)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+}
+else
+{
+    <hr/>
+    <h2>@Team.Teamname</h2> 
+    
+    // Form
+    <hr/>
+    <h4>Form</h4>
+    <p>TODO: display form</p>
+    
+    // Season Stats
+    <hr/>
+    <h4>Season Stats</h4>
+    <MudSimpleTable Style="overflow-x: auto;">
+        <thead>
+            <tr>
+                <th>Played</th>
+                <th>Wins</th>
+                <th>Draws</th>
+                <th>Losses</th>
+                <th>Goals For</th>
+                <th>Goals Against</th>
+                <th>Goal Difference</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Team.SeasonPlayed</td>
+                <td>@Team.SeasonWon</td>
+                <td>@Team.SeasonDrawn</td>
+                <td>@Team.SeasonLost</td>
+                <td>@Team.SeasonGoalsFor</td>
+                <td>@Team.SeasonGoalsAgainst</td>
+                <td>@Team.SeasonGoalDifference</td>
+                <td>@Team.SeasonPoints</td>
+            </tr>
+        </tbody>
+    </MudSimpleTable>
+
+    // Total Stats
+    <hr/>
+    <h4>Total All-time Stats</h4>
+    <p>Since 2020-2021</p>
+    <MudSimpleTable Style="overflow-x: auto;">
+        <thead>
+        <tr>
+            <th>Played</th>
+            <th>Wins</th>
+            <th>Draws</th>
+            <th>Losses</th>
+            <th>Goals For</th>
+            <th>Goals Against</th>
+            <th>Goal Difference</th>
+            <th>Points</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>@Team.TotalPlayed</td>
+            <td>@Team.TotalWon</td>
+            <td>@Team.TotalDrawn</td>
+            <td>@Team.TotalLost</td>
+            <td>@Team.TotalGoalsFor</td>
+            <td>@Team.TotalGoalsAgainst</td>
+            <td>@Team.TotalGoalDifference</td>
+            <td>@Team.TotalPoints</td>
+        </tr>
+        </tbody>
+    </MudSimpleTable>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    private Team Team { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        Team = await _data.LoadDataSingle<Team, dynamic>($"SELECT * FROM Teams WHERE ID = {Id};", new {}, _config.GetConnectionString("default"));
+    // Add call for leagues to match up and display
+    }
+}
