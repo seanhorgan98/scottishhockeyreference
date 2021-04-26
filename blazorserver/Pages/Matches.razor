@@ -11,7 +11,7 @@
 
 <MudGrid>
     <!-- CATEGORY -->
-    <MudItem xs="10" sm="5" md="3">
+    <MudItem xs="6" sm="4" md="2">
         <MudSelect Label="Category" Placeholder="Select category" @bind-Value="SelectedCategory" OffsetY="true" Variant="Variant.Outlined">
             <MudSelectItem Value=@("1")>Men's</MudSelectItem>
             <MudSelectItem Value=@("2")>Women's</MudSelectItem>
@@ -34,7 +34,7 @@
     </MudItem>
     
     <!-- OPTIONAL: TEAM -->
-    <MudItem xs="10" sm="5" md="3">
+    <MudItem xs="12" sm="6" md="4">
         <MudSelect Label="Team" Placeholder="Select team" @bind-Value="SelectedTeam" OffsetY="true" Dense="true" Variant="Variant.Outlined">
             @foreach (var team in _teams)
             {
@@ -47,10 +47,22 @@
     </MudItem>
     
     <!-- SEARCH -->
-    <MudButton Variant="Variant.Filled" Color="Color.Primary">Search</MudButton>
+    <MudIconButton Icon="@Icons.Material.Filled.Search" OnClick="SearchButton"></MudIconButton>
 </MudGrid>
 
-
+<hr/>
+@if (_showResults)
+{
+    <h1>Results</h1>
+    if (_fixtures != null)
+    {
+        foreach (var fixture in _fixtures)
+        {
+            <p>@fixture.Id</p>
+        }
+        
+    }
+}
 
 @code {
     private string SelectedCategory { get; set; }
@@ -59,11 +71,41 @@
     
     private List<Team> _teams;
     private List<League> _leagues;
+    private List<Fixture> _fixtures;
+
+    private bool _showResults;
     
     protected override async Task OnInitializedAsync()
     {
         _teams = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams;", new {}, _config.GetConnectionString("default"));
         _leagues = await _data.LoadData<League, dynamic>("SELECT * FROM Leagues;", new {}, _config.GetConnectionString("default"));
         // Add call for fixtures.
+    }
+
+    private async Task SearchButton()
+    {
+        _showResults = true;
+        if (SelectedCategory != null)
+        {
+            await LoadFixturesAsync(int.Parse(SelectedCategory), SelectedLeague, SelectedTeam);
+        }
+    }
+
+    private async Task LoadFixturesAsync(int category, League league, Team team)
+    {
+        var sql = "";
+        if (league == null)
+        {
+            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category}";
+        }
+        else if (team == null)
+        {
+            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} AND League_ID = {league.Id}";
+        }
+        else
+        {
+            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} AND League_ID = {league.Id} AND (Team_1_ID = {team.Id} OR Team_2_ID = {team.Id})";
+        }
+        _fixtures = await _data.LoadData<Fixture, dynamic>(sql, new {}, _config.GetConnectionString("default"));
     }
 }
