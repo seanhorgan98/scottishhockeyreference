@@ -6,7 +6,7 @@
 @inject IConfiguration _config
 
 <hr/>
-<h3>Matches</h3>
+<h2>Matches</h2>
 
 
 <MudGrid>
@@ -53,12 +53,20 @@
 <hr/>
 @if (_showResults)
 {
-    <h1>Results</h1>
+    <h3>Results</h3>
     if (_fixtures != null)
     {
         foreach (var fixture in _fixtures)
         {
-            <p>@fixture.Id</p>
+            // Match Card
+            <MudPaper Class="pa-8 ma-2 rounded">
+                <div>
+                    <h6>@fixture.Date </h6>
+                </div>
+                <div>@fixture.Team_1_ID: @fixture.Team_1_Score - @fixture.Team_2_Score: @fixture.Team_2_ID</div>
+                <div>@fixture.League_ID</div>
+                <div>@fixture.Location</div>
+            </MudPaper>
         }
         
     }

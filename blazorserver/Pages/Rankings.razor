@@ -14,37 +14,49 @@
 }
 else
 {
-    <MudTable Items="@_teams" Hover="true" Breakpoint="Breakpoint.Sm" SortLabel="Sort By">
-        <HeaderContent>
-            <MudTh>Name</MudTh>
-            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<Team, object>(x=>x.Rating)">Rating</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<Team, object>(x=>x.Movement)">Movement</MudTableSortLabel></MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            @{ var url = "team/" + context.Id;}
-            <MudTd DataLabel="Name"><NavLink class="nav-link" href="@url">@context.Teamname</NavLink></MudTd>
-            <MudTd DataLabel="Rating">@context.Rating</MudTd>
+    <MudSimpleTable Hover="true" Dense="true">
+        <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Rating</th>
+            <th>Movement</th>
+        </tr>
+        </thead>
+        <tbody>
+        @{ int i = 1;}
+        @foreach (var row in _teams)
+        {
+            <tr>
+                <td>@i</td>
+                @{ var url = "team/" + row.Id;}
+                <td><NavLink class="nav-link" href="@url">@row.Teamname</NavLink></td>
+                <td>@row.Rating</td>
 
-            @if (@context.Movement > 0)
-            {
-                <MudTd DataLabel="Movement" Style="color: green">+@context.Movement</MudTd>
-            }
-            else if (@context.Movement < 0)
-            {
-                <MudTd DataLabel="Movement" Style="color: red">-@context.Movement</MudTd>
-            }
-            else
-            {
-                <MudTd> </MudTd>
-            }
-        </RowTemplate>
-    </MudTable>
+                @if (@row.Movement > 0)
+                {
+                    <td style="color: green">+@row.Movement</td>
+                }
+                else if (@row.Movement < 0)
+                {
+                    <td style="color: red">-@row.Movement</td>
+                }
+                else
+                {
+                    <td> </td>
+                }
+            </tr>
+            i++;
+        }
+        </tbody>
+    </MudSimpleTable>
 }
 
 @code {
     private List<Team> _teams;
     protected override async Task OnInitializedAsync()
     {
-        _teams = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams;", new {}, _config.GetConnectionString("default"));
+        var temp = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams;", new {}, _config.GetConnectionString("default"));
+        _teams = temp.OrderByDescending(x => x.Rating).ToList();
     }
 }

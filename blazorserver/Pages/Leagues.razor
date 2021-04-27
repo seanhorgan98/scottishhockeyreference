@@ -18,8 +18,8 @@
             @foreach (var league in MensLeagues)
             {
                 <MudExpansionPanel Text="@league.Name">
-                    <table class="table table-striped">
-                        <thead class="thead-light">
+                    <MudSimpleTable Dense="true" Style="overflow-x: auto;">
+                        <thead>
                             <tr>
                                 <th scope="col">Position</th>
                                 <th scope="col">Team</th>
@@ -55,7 +55,7 @@
                                 </tr>
                             }
                         </tbody>
-                    </table>
+                    </MudSimpleTable>
                 </MudExpansionPanel>
             }
         </MudExpansionPanels>
@@ -65,8 +65,8 @@
             @foreach (var league in WomensLeagues)
             {
                 <MudExpansionPanel Text="@league.Name">
-                    <table class="table table-striped">
-                        <thead class="thead-light">
+                    <MudSimpleTable Dense="true" Style="overflow-x: auto;">
+                        <thead>
                             <tr>
                                 <th scope="col">Position</th>
                                 <th scope="col">Team</th>
@@ -87,9 +87,10 @@
                                 if (!teamIsVisible(league.Id, team))
                                     continue;
                                 position += 1;
+                                var url = "team/" + team.Id;
                                 <tr>
                                     <td>@position</td>
-                                    <td>@team.Teamname</td>
+                                    <td><NavLink class="nav-link" href="@url">@team.Teamname</NavLink></td>
                                     <td>@team.SeasonPlayed</td>
                                     <td>@team.SeasonWon</td>
                                     <td>@team.SeasonDrawn</td>
@@ -101,7 +102,7 @@
                                 </tr>
                             }
                         </tbody>
-                    </table>
+                    </MudSimpleTable>
                 </MudExpansionPanel>
             }
         </MudExpansionPanels>
@@ -111,8 +112,8 @@
             @foreach (var league in MensIndoorLeagues)
             {
                 <MudExpansionPanel Text="@league.Name">
-                    <table class="table table-striped">
-                        <thead class="thead-light">
+                    <MudSimpleTable Dense="true" Style="overflow-x: auto;">
+                        <thead>
                             <tr>
                                 <th scope="col">Position</th>
                                 <th scope="col">Team</th>
@@ -133,9 +134,10 @@
                                 if (!teamIsVisible(league.Id, team))
                                     continue;
                                 position += 1;
+                                var url = "team/" + team.Id;
                                 <tr>
                                     <td>@position</td>
-                                    <td>@team.Teamname</td>
+                                    <td><NavLink class="nav-link" href="@url">@team.Teamname</NavLink></td>
                                     <td>@team.SeasonPlayed</td>
                                     <td>@team.SeasonWon</td>
                                     <td>@team.SeasonDrawn</td>
@@ -147,7 +149,7 @@
                                 </tr>
                             }
                         </tbody>
-                    </table>
+                    </MudSimpleTable>
                 </MudExpansionPanel>
             }
         </MudExpansionPanels>
@@ -157,8 +159,8 @@
             @foreach (var league in WomensIndoorLeagues)
             {
                 <MudExpansionPanel Text="@league.Name">
-                    <table class="table table-striped">
-                        <thead class="thead-light">
+                    <MudSimpleTable Dense="true" Style="overflow-x: auto;">
+                        <thead>
                             <tr>
                                 <th scope="col">Position</th>
                                 <th scope="col">Team</th>
@@ -179,9 +181,10 @@
                                 if (!teamIsVisible(league.Id, team))
                                     continue;
                                 position += 1;
+                                var url = "team/" + team.Id;
                                 <tr>
                                     <td>@position</td>
-                                    <td>@team.Teamname</td>
+                                    <td><NavLink class="nav-link" href="@url">@team.Teamname</NavLink></td>
                                     <td>@team.SeasonPlayed</td>
                                     <td>@team.SeasonWon</td>
                                     <td>@team.SeasonDrawn</td>
@@ -193,7 +196,7 @@
                                 </tr>
                             }
                         </tbody>
-                    </table>
+                    </MudSimpleTable>
                 </MudExpansionPanel>
             }
         </MudExpansionPanels>
