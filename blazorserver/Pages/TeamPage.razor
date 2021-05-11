@@ -68,14 +68,14 @@ else
         </thead>
         <tbody>
         <tr>
-            <td>@Team.TotalPlayed</td>
-            <td>@Team.TotalWon</td>
-            <td>@Team.TotalDrawn</td>
-            <td>@Team.TotalLost</td>
-            <td>@Team.TotalGoalsFor</td>
-            <td>@Team.TotalGoalsAgainst</td>
-            <td>@Team.TotalGoalDifference</td>
-            <td>@Team.TotalPoints</td>
+            <td>@{ var temp = Team.TotalPlayed + Team.SeasonPlayed;}@temp</td>
+            <td>@{ temp = Team.TotalWon + Team.SeasonWon;}@temp</td>
+            <td>@{ temp = Team.TotalDrawn + Team.SeasonDrawn;}@temp</td>
+            <td>@{ temp = Team.TotalLost + Team.SeasonLost;}@temp</td>
+            <td>@{ temp = Team.TotalGoalsFor + Team.SeasonGoalsFor;}@temp</td>
+            <td>@{ temp = Team.TotalGoalsAgainst + Team.SeasonGoalsAgainst;}@temp</td>
+            <td>@{ temp = Team.TotalGoalDifference + Team.SeasonGoalDifference;}@temp</td>
+            <td>@{ temp = Team.TotalPoints + Team.SeasonPoints;}@temp</td>
         </tr>
         </tbody>
     </MudSimpleTable>
