@@ -2,6 +2,7 @@
 @using DataLibrary
 @using blazorserver.Models
 @using Microsoft.Extensions.Configuration
+@using System.Globalization
 @inject IDataAccess _data
 @inject IConfiguration _config
 
@@ -12,7 +13,8 @@
 <MudGrid>
     <!-- CATEGORY -->
     <MudItem xs="6" sm="4" md="2">
-        <MudSelect Label="Category" Placeholder="Select category" @bind-Value="SelectedCategory" OffsetY="true" Variant="Variant.Outlined">
+        <MudSelect Label="Category" Placeholder="Select category" @bind-Value="SelectedCategory" OffsetY="true" Variant="Variant.Outlined" >
+            <MudSelectItem Value=@("0")>All</MudSelectItem>
             <MudSelectItem Value=@("1")>Men's</MudSelectItem>
             <MudSelectItem Value=@("2")>Women's</MudSelectItem>
             <MudSelectItem Value=@("3")>Men's Indoor</MudSelectItem>
@@ -25,7 +27,7 @@
         <MudSelect Label="League" Placeholder="Select league" @bind-Value="SelectedLeague" OffsetY="true" Dense="true" Variant="Variant.Outlined">
             @foreach (var league in _leagues)
             {
-                if (league.Hockey_Category_Id.ToString() == SelectedCategory)
+                if (league.Hockey_Category_Id.ToString() == SelectedCategory || league.Hockey_Category_Id.ToString() == "0")
                 {
                     <MudSelectItem Value=@(league)>@league.Name</MudSelectItem>
                 }
@@ -58,15 +60,33 @@
     {
         foreach (var fixture in _fixtures)
         {
+            var team1Name = _teams.Single(x => x.Id == fixture.Team_1_ID).Teamname;
+            var team2Name = _teams.Single(x => x.Id == fixture.Team_2_ID).Teamname;
             // Match Card
-            <MudPaper Class="pa-8 ma-2 rounded">
-                <div>
-                    <h6>@fixture.Date </h6>
-                </div>
-                <div>@fixture.Team_1_ID: @fixture.Team_1_Score - @fixture.Team_2_Score: @fixture.Team_2_ID</div>
-                <div>@fixture.League_ID</div>
-                <div>@fixture.Location</div>
-            </MudPaper>
+            <MudGrid>
+                <MudItem xs="12" md="12">
+                    <MudPaper Class="d-flex py-2 px-1" Style="background-color: #C0D3FE">
+                        <MudItem xs="3">
+                            <MudPaper Class="pa-2 mx-2 mud-width-full" Elevation="0" Square="true">@fixture.Date.ToString("dd MMMM yyyy", CultureInfo.CurrentCulture)</MudPaper>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudPaper Class="d-flex justify-content-center align-center">
+                                <MudItem xs="3" Elevation="0" Class="mud-text-align-center">
+                                    <MudText Typo="Typo.button">@team1Name</MudText>
+                                </MudItem>
+                                <MudItem xs="3" Elevation="0" Class="d-flex align-center flex-column">
+                                    <MudText Typo="Typo.overline">@_leagues.Single(x => x.Id == fixture.League_ID).Name</MudText>
+                                    <MudText Typo="Typo.overline">@fixture.Team_1_Score - @fixture.Team_2_Score</MudText>
+                                    <MudText Typo="Typo.overline">@fixture.Location</MudText>
+                                </MudItem>
+                                <MudItem xs="3" Elevation="0" Class="mud-text-align-center">
+                                    <MudText Typo="Typo.button">@team2Name</MudText>
+                                </MudItem>
+                            </MudPaper>
+                        </MudItem>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
         }
         
     }
@@ -87,32 +107,33 @@
     {
         _teams = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams;", new {}, _config.GetConnectionString("default"));
         _leagues = await _data.LoadData<League, dynamic>("SELECT * FROM Leagues;", new {}, _config.GetConnectionString("default"));
-        // Add call for fixtures.
     }
 
     private async Task SearchButton()
     {
         _showResults = true;
-        if (SelectedCategory != null)
-        {
-            await LoadFixturesAsync(int.Parse(SelectedCategory), SelectedLeague, SelectedTeam);
-        }
+        await LoadFixturesAsync(SelectedCategory, SelectedLeague, SelectedTeam);
+        
     }
 
-    private async Task LoadFixturesAsync(int category, League league, Team team)
+    private async Task LoadFixturesAsync(string category, League league, Team team)
     {
         var sql = "";
-        if (league == null)
+        if (category is null or "0")
         {
-            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category}";
+            sql = $"SELECT * FROM Fixtures order by Date desc";
+        }
+        else if (league == null)
+        {
+            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} order by Date desc";
         }
         else if (team == null)
         {
-            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} AND League_ID = {league.Id}";
+            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} AND League_ID = {league.Id} order by Date desc";
         }
         else
         {
-            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} AND League_ID = {league.Id} AND (Team_1_ID = {team.Id} OR Team_2_ID = {team.Id})";
+            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} AND League_ID = {league.Id} AND (Team_1_ID = {team.Id} OR Team_2_ID = {team.Id}) order by Date desc";
         }
         _fixtures = await _data.LoadData<Fixture, dynamic>(sql, new {}, _config.GetConnectionString("default"));
     }
