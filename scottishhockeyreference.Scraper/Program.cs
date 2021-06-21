@@ -16,7 +16,7 @@ namespace scottishhockeyreference.Scraper
         private const string LeagueUrl = "https://www.scottish-hockey.org.uk/league-standings/";
         private const string resultsURL = "https://www.scottish-hockey.org.uk/latest-results/";
         // private static readonly string connectionString = "server=aa1su4hgu44u0mv.cxkd3gywhaht.eu-west-1.rds.amazonaws.com; port=3306; database=shr_prod; user=proddb; password=H4ppyF4c3; Persist Security Info=False; Connect Timeout=300";
-        private const string connectionString = "server=.; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
+        private const string connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
 
         private static async Task Main()
         {
@@ -38,17 +38,52 @@ namespace scottishhockeyreference.Scraper
 
         private static async Task TestScrape()
         {
+            // Get List of Leagues
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var leagueList = new List<League>();
+            var sqlSelect = "SELECT * FROM Leagues;";
+            var cmd = new MySqlCommand(sqlSelect, conn);
+            using (MySqlDataReader rdr = cmd.ExecuteReader()) {
+                while (rdr.Read()) {
+                    /* iterate once per row */
+                    var league = new League(rdr.GetInt32(0), rdr.GetString(1), rdr.GetInt32(2));
+                    leagueList.Add(league);
+                }
+            }
+
+            // Get List of Teams
+            var teamList = new List<Team>();
+            sqlSelect = "SELECT * FROM Teams;";
+            var cmdTeam = new MySqlCommand(sqlSelect, conn);
+            using (MySqlDataReader rdr = cmdTeam.ExecuteReader()) {
+                while (rdr.Read()) {
+                    /* iterate once per row */
+                    var team = new Team
+                    {
+                        ID = rdr.GetInt32(0),
+                        Teamname = (rdr.IsDBNull(1)) ? "" : rdr.GetString(1),
+                        League_ID = rdr.GetInt32(2),
+                        Hockey_Category_ID = rdr.GetInt32(22)
+                    };
+                    // System.Console.WriteLine("Name: " + team.Teamname + ", League ID: " + team.League_ID + ", Cat: " + team.Hockey_Category_ID);
+                    teamList.Add(team);
+                }
+            }
+
             var config = Configuration.Default.WithDefaultLoader();
             var context = BrowsingContext.New(config);
             var document = await context.OpenAsync(resultsURL);
             var tableWrap = document.All.Where(m => m.LocalName == "tr");
-            
+            DateTime currentDate = DateTime.MinValue;
+
             foreach (var row in tableWrap)
             {
                 // If row is a date
                 if (row.Children.Length == 1)
                 {
                     // Console.WriteLine(row.Text());
+                    currentDate = DateTime.Parse(row.Text());
                 }
                 // If row has a bye or missing a column
                 else if (row.Children.Length < 6)
@@ -62,9 +97,59 @@ namespace scottishhockeyreference.Scraper
                 }
                 else
                 {
-                    Console.WriteLine(row.Text());
+                    var fixtureDate = currentDate;
+                    var tempLeague = row.Children[0].Text();
+                    // ADD WHEN RUNNING IN PRODUCTION
+                    // if (tempLeague.Contains("Super") || tempLeague.Contains("Conference"))
+                    // {
+                    //     continue;
+                    // }
+                    var fixtureLeague = GetLeagueIDByName(leagueList, tempLeague);
+                    var fixtureTeamOne = GetTeamIdByName(teamList, row.Children[1].Text());
+                    var fixtureTeamOneScore = row.Children[2].Text();
+                    var fixtureTeamTwoScore = row.Children[3].Text();
+                    var fixtureTeamTwo = GetTeamIdByName(teamList, row.Children[4].Text());
+                    var fixtureLocation = row.Children[5].Text();
+                    var fixtureCategory = GetCategoryByLeague(leagueList, fixtureLeague);
+                    if (fixtureTeamOne == 0 || fixtureTeamTwo == 0) continue;
+                    Console.WriteLine($"{fixtureDate.ToShortDateString()}: {fixtureLeague}, {fixtureTeamOne} {fixtureTeamOneScore} - {fixtureTeamTwoScore} {fixtureTeamTwo}, {fixtureLocation}");
+
+                    //PostFixtureToServer();
+
+                    //SetMostRecentDay(currentDay);
                 }
             }
+        }
+
+        private static int GetCategoryByLeague(IEnumerable<League> leagueList, int currentLeagueId)
+        {
+            League temp = leagueList.SingleOrDefault(x => x.Id == currentLeagueId);
+            if (temp != null)
+            {
+                return temp.Hockey_Category_ID;
+            }else{
+                return 1;
+            }
+        }
+
+        private static int GetTeamIdByName(IEnumerable<Team> teamList, string currentTeam)
+        {
+            foreach (var team in teamList)
+            {
+                if (!team.Teamname.Equals(currentTeam)) continue;
+                return team.ID;
+            }
+            return 0;
+        }
+
+        private static int GetLeagueIDByName(IEnumerable<League> leagueList, string currentLeague)
+        {
+            foreach (var league in leagueList)
+            {
+                if (!league.Name.Equals(currentLeague)) continue;
+                return league.Id;
+            }
+            return 0;
         }
 
         private static async Task ScrapeResults()
@@ -90,7 +175,7 @@ namespace scottishhockeyreference.Scraper
                         teamTwos.Add(teamScan[j].TextContent);
                     }
                 }
-                
+
                 var divisionScan = month.QuerySelectorAll("td.scores.division");
                 var divisions = divisionScan.Select(i => i.TextContent).ToList();
 
@@ -581,9 +666,9 @@ VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal class League
     {
-        public int Id { get; private set; }
-        public string Name { get; private set; }
-        public int Hockey_Category_ID { get; private set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int Hockey_Category_ID { get; set; }
 
         public League(int id, string name, int hockey_category_id)
         {
