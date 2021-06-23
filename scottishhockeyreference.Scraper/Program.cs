@@ -76,11 +76,13 @@ namespace scottishhockeyreference.Scraper
             var document = await context.OpenAsync(resultsURL);
             var tableWrap = document.All.Where(m => m.LocalName == "tr");
             DateTime currentDate = DateTime.MinValue;
+            var mostRecentDate = GetMostRecentDate();
+            var topDate = DateTime.Parse(tableWrap.First().Text());
 
             foreach (var row in tableWrap)
             {
-                // If row is a date
-                if (row.Children.Length == 1)
+                // If row is a date and not umpires
+                if (row.Children.Length == 1 && !row.Text().Contains("Umpires"))
                 {
                     // Console.WriteLine(row.Text());
                     currentDate = DateTime.Parse(row.Text());
@@ -97,13 +99,21 @@ namespace scottishhockeyreference.Scraper
                 }
                 else
                 {
+                    if (DateTime.Compare(currentDate,mostRecentDate) < 0)
+                    {
+                        // System.Console.WriteLine($"Current Date: {currentDate}, Database Date: {mostRecentDate}");
+                        break;
+                    }
                     var fixtureDate = currentDate;
                     var tempLeague = row.Children[0].Text();
+
                     // ADD WHEN RUNNING IN PRODUCTION
                     // if (tempLeague.Contains("Super") || tempLeague.Contains("Conference"))
                     // {
                     //     continue;
                     // }
+                    // IF LEAGUE IS ACTUALLY A CUP IGNORE??
+
                     var fixtureLeague = GetLeagueIDByName(leagueList, tempLeague);
                     var fixtureTeamOne = GetTeamIdByName(teamList, row.Children[1].Text());
                     var fixtureTeamOneScore = row.Children[2].Text();
@@ -112,13 +122,100 @@ namespace scottishhockeyreference.Scraper
                     var fixtureLocation = row.Children[5].Text();
                     var fixtureCategory = GetCategoryByLeague(leagueList, fixtureLeague);
                     if (fixtureTeamOne == 0 || fixtureTeamTwo == 0) continue;
+
+                    var eloChange = CalculateElo(fixtureTeamOne, fixtureTeamOneScore, fixtureTeamTwo, fixtureTeamTwoScore);
+                    PostFixtureToDatabase();
+                    UpdateTeamEloRating(Team One, Elochange);
+                    UpdateTeamEloRating(Team Two, EloChange);
                     Console.WriteLine($"{fixtureDate.ToShortDateString()}: {fixtureLeague}, {fixtureTeamOne} {fixtureTeamOneScore} - {fixtureTeamTwoScore} {fixtureTeamTwo}, {fixtureLocation}");
-
-                    //PostFixtureToServer();
-
-                    //SetMostRecentDay(currentDay);
                 }
             }
+            SetMostRecentDay(topDate);
+        }
+
+        private static int CalculateElo(int teamOne, int scoreOne, int teamTwo, int scoreTwo, int league)
+        {
+            // Get team current ELOs
+
+            // Calculate 
+        }
+
+        private static void UpdateTeamEloRating(int teamID, int eloChange)
+        {
+            // Update Elo Rating
+
+            // Update Movement
+        }
+
+        private static void PostFixtureToDatabase(DateTime date, int league, int teamOne, int teamTwo, int teamOneScore, int teamTwoScore, string location, int elo)
+        {
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            MySqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = @"INSERT INTO Fixtures
+    (Date,
+    Team_1_ID,
+    Team_2_ID,
+    Location,
+    Season_ID,
+    League_ID,
+    Team_1_Score,
+    Team_2_Score,
+    Elo_Change,
+    Hockey_Category_ID)
+VALUES
+	('1998-02-09 00:00:00',
+    2857,
+    2858,
+    'Location x',
+    1,
+    6,
+    1,
+    0,
+    24,
+    1);";
+            cmd.Parameters.AddWithValue("@MRDATE", date);
+            cmd.Parameters.AddWithValue("@TEAMONE", teamOne);
+            cmd.Parameters.AddWithValue("@TEAMTWO", teamTwo);
+            cmd.Parameters.AddWithValue("@LOCATION", location);
+            cmd.Parameters.AddWithValue("@SEASON", 1);
+            cmd.Parameters.AddWithValue("@LEAGUE", league);
+            cmd.Parameters.AddWithValue("@SCOREONE", teamOneScore);
+            cmd.Parameters.AddWithValue("@SCORETWO", teamTwoScore);
+            cmd.Parameters.AddWithValue("@ELO", eloChange);
+            cmd.Parameters.AddWithValue("@CATEGORY", mrDate);
+            cmd.ExecuteNonQuery();
+            conn.Close();
+
+            var sql =
+
+        }
+
+        private static DateTime GetMostRecentDate()
+        {
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            DateTime mrDate = new DateTime();
+            var sqlSelect = "SELECT * FROM Scraper;";
+            var cmd = new MySqlCommand(sqlSelect, conn);
+            using (MySqlDataReader rdr = cmd.ExecuteReader()) {
+                while (rdr.Read()) {
+                    /* iterate once per row */
+                    mrDate = rdr.GetDateTime(0);
+                }
+            }
+            return mrDate;
+        }
+
+        private static void SetMostRecentDay(DateTime mrDate)
+        {
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            MySqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = "UPDATE Scraper SET MostRecentDay = @MRDATE";
+            cmd.Parameters.AddWithValue("@MRDATE", mrDate);
+            cmd.ExecuteNonQuery();
+            conn.Close();
         }
 
         private static int GetCategoryByLeague(IEnumerable<League> leagueList, int currentLeagueId)
