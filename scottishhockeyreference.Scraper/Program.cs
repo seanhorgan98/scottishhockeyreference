@@ -15,11 +15,12 @@ namespace scottishhockeyreference.Scraper
         //static HttpClient client;
         private const string LeagueUrl = "https://www.scottish-hockey.org.uk/league-standings/";
         private const string resultsURL = "https://www.scottish-hockey.org.uk/latest-results/";
+        private const string htmlFile = "/home/sean/Desktop/Scottish Hockey Results 2020/Men Indoor Nat 3.html";
         // private static readonly string connectionString = "server=aa1su4hgu44u0mv.cxkd3gywhaht.eu-west-1.rds.amazonaws.com; port=3306; database=shr_prod; user=proddb; password=H4ppyF4c3; Persist Security Info=False; Connect Timeout=300";
         private const string connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
 
-        //private static async Task Main()
-        private static void Main()
+        private static async Task Main()
+        //private static void Main()
         {
             //var clientHandler = new HttpClientHandler
             //{
@@ -34,8 +35,8 @@ namespace scottishhockeyreference.Scraper
             // await ScrapeNewTeams();
             // await ScrapePoints();
             // await ScrapeResults();
-            // await TestScrape();
-            CalculateElo(1350, 4, 1600, 0, 0);
+            await TestScrape();
+            //CalculateElo(100, 5, 3000, 0, 0);
         }
 
         private static async Task TestScrape()
@@ -75,36 +76,39 @@ namespace scottishhockeyreference.Scraper
 
             var config = Configuration.Default.WithDefaultLoader();
             var context = BrowsingContext.New(config);
-            var document = await context.OpenAsync(resultsURL);
+            var htmlText = System.IO.File.ReadAllText(htmlFile);
+            //var document = await context.OpenAsync(resultsURL);
+            var document = await context.OpenAsync(req => req.Content(htmlText));
             var tableWrap = document.All.Where(m => m.LocalName == "tr");
             DateTime currentDate = DateTime.MinValue;
             var mostRecentDate = GetMostRecentDate();
-            var topDate = DateTime.Parse(tableWrap.First().Text());
+            //var topDate = DateTime.Parse(tableWrap.First().Text());
 
             foreach (var row in tableWrap)
             {
+                //System.Console.WriteLine(row.Text() + ", out of " + tableWrap.ToArray().Length);
                 // If row is a date and not umpires
-                if (row.Children.Length == 1 && !row.Text().Contains("Umpires"))
+                if (row.Children.Length == 1 && (!row.Text().Contains("Umpires") && !row.Text().Contains("Officials")))
                 {
                     // Console.WriteLine(row.Text());
                     currentDate = DateTime.Parse(row.Text());
                 }
                 // If row has a bye or missing a column
-                else if (row.Children.Length < 6)
+                else if (row.Children.Length < 5 || row.Children.Length > 7) // Make 6 when on latest fixtures, 5 for league page
                 {
-                    // Console.WriteLine(row.Text());
+                    Console.WriteLine("LENGTH");
                 }
                 // If row is postponed
-                else if (row.Children.SingleOrDefault(r => r.ClassName == "text-center scores homeScore").Text() == "P")
-                {
-                    // Console.WriteLine(row.Text());
-                }
+                // else if (row.Children.SingleOrDefault(r => r.ClassName == "text-center scores homeScore").Text() == "P")
+                // {
+                //     // Console.WriteLine(row.Text());
+                // }
                 else
                 {
                     if (DateTime.Compare(currentDate,mostRecentDate) < 0)
                     {
                         // System.Console.WriteLine($"Current Date: {currentDate}, Database Date: {mostRecentDate}");
-                        break;
+                        // break;
                     }
                     var fixtureDate = currentDate;
                     var tempLeague = row.Children[0].Text();
@@ -116,26 +120,29 @@ namespace scottishhockeyreference.Scraper
                     // }
                     // IF LEAGUE IS ACTUALLY A CUP IGNORE??
 
-                    var fixtureLeague = GetLeagueIDByName(leagueList, tempLeague);
-                    var fixtureTeamOne = GetTeamIdByName(teamList, row.Children[1].Text());
-                    var fixtureTeamOneScore = row.Children[2].Text();
-                    var fixtureTeamTwoScore = row.Children[3].Text();
-                    var fixtureTeamTwo = GetTeamIdByName(teamList, row.Children[4].Text());
-                    var fixtureLocation = row.Children[5].Text();
+                    // Need to change numbers when not on league page
+                    var fixtureLeague = 15; //GetLeagueIDByName(leagueList, tempLeague);
+                    var fixtureTeamOne = GetTeamIdByName(teamList, row.Children[0].Text());
+                    var fixtureTeamOneScore = Convert.ToInt32(row.Children[1].Text());
+                    var fixtureTeamTwoScore = Convert.ToInt32(row.Children[2].Text());
+                    var fixtureTeamTwo = GetTeamIdByName(teamList, row.Children[3].Text());
+                    var fixtureLocation = row.Children[4].Text();
                     var fixtureCategory = GetCategoryByLeague(leagueList, fixtureLeague);
                     if (fixtureTeamOne == 0 || fixtureTeamTwo == 0) continue;
 
-                    //var eloChange = CalculateElo(fixtureTeamOne, fixtureTeamOneScore, fixtureTeamTwo, fixtureTeamTwoScore);
-                    //PostFixtureToDatabase();
-                    //UpdateTeamEloRating(Team One, Elochange);
-                    //UpdateTeamEloRating(Team Two, EloChange);
+                    var eloChanges = CalculateElo(fixtureTeamOne, fixtureTeamOneScore, fixtureTeamTwo, fixtureTeamTwoScore, 0);
+                    var eloOneChange = eloChanges.Item1;
+                    var eloTwoChange = eloChanges.Item2;
+                    PostFixtureToDatabase(fixtureDate, fixtureLeague, fixtureTeamOne, fixtureTeamTwo, fixtureTeamOneScore, fixtureTeamTwoScore, fixtureLocation, eloOneChange, fixtureCategory, eloTwoChange);
+                    UpdateTeamEloRating(fixtureTeamOne, eloOneChange);
+                    UpdateTeamEloRating(fixtureTeamTwo, eloTwoChange);
                     Console.WriteLine($"{fixtureDate.ToShortDateString()}: {fixtureLeague}, {fixtureTeamOne} {fixtureTeamOneScore} - {fixtureTeamTwoScore} {fixtureTeamTwo}, {fixtureLocation}");
                 }
             }
-            SetMostRecentDay(topDate);
+            //SetMostRecentDay(topDate);
         }
 
-        private static void CalculateElo(int teamOneRating, int scoreOne, int teamTwoRating, int scoreTwo, int league)
+        private static (int, int) CalculateElo(int teamOneRating, int scoreOne, int teamTwoRating, int scoreTwo, int league)
         {
             // Variables
             double K = 24;
@@ -177,8 +184,10 @@ namespace scottishhockeyreference.Scraper
             var Eb = 1 / (1 + Math.Pow(10D, expoB));
 
             // New Elo calculations
-            var teamOneNewElo = teamOneRating + Math.Round(K * W * (Sa - Ea));
-            var teamTwoNewElo = teamTwoRating + Math.Round(K * W * (Sb - Eb));
+            var teamOneEloChange = Convert.ToInt32(Math.Round(K * W * (Sa - Ea)));
+            var teamTwoEloChange = Convert.ToInt32(Math.Round(K * W * (Sb - Eb)));
+            var teamOneNewElo = teamOneRating + teamOneEloChange;
+            var teamTwoNewElo = teamTwoRating + teamTwoEloChange;
 
             var EloChange = Math.Abs(Math.Round(K * W * (Sb - Eb)));
 
@@ -192,18 +201,27 @@ namespace scottishhockeyreference.Scraper
                 teamTwoNewElo = teamTwoRating;
             }
 
-            System.Console.WriteLine($"A Elo: {teamOneRating}, B Elo: {teamTwoRating}\nA' Rating: {teamOneNewElo}, B' Elo: {teamTwoNewElo}, EloChange: {EloChange}, K: {K}");
-            // return teamOneNewElo;
+            //System.Console.WriteLine($"A Elo: {teamOneRating}, B Elo: {teamTwoRating}\nA' Rating: {teamOneNewElo}, B' Elo: {teamTwoNewElo}, EloChange: {EloChange}, K: {K}");
+            return (teamOneEloChange, teamTwoEloChange);
         }
 
         private static void UpdateTeamEloRating(int teamID, int eloChange)
         {
             // Update Elo Rating
-
-            // Update Movement
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            MySqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = @"UPDATE Teams
+SET Movement=@ELOCHANGE,
+    Rating = Rating + @ELOCHANGE
+WHERE Id = @TEAMID";
+            cmd.Parameters.AddWithValue("@ELOCHANGE", eloChange);
+            cmd.Parameters.AddWithValue("@TEAMID", teamID);
+            cmd.ExecuteNonQuery();
+            conn.Close();
         }
 
-        private static void PostFixtureToDatabase(DateTime date, int league, int teamOne, int teamTwo, int teamOneScore, int teamTwoScore, string location, int elo, int category)
+        private static void PostFixtureToDatabase(DateTime date, int league, int teamOne, int teamTwo, int teamOneScore, int teamTwoScore, string location, int eloOne, int category, int eloTwo)
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
@@ -217,19 +235,21 @@ namespace scottishhockeyreference.Scraper
     League_ID,
     Team_1_Score,
     Team_2_Score,
-    Elo_Change,
-    Hockey_Category_ID)
+    Team_1_Elo_Change,
+    Hockey_Category_ID,
+    Team_2_Elo_Change)
 VALUES
-	('1998-02-09 00:00:00',
-    2857,
-    2858,
-    'Location x',
-    1,
-    6,
-    1,
-    0,
-    24,
-    1);";
+	(@MRDATE,
+    @TEAMONE,
+    @TEAMTWO,
+    @LOCATION,
+    @SEASON,
+    @LEAGUE,
+    @SCOREONE,
+    @SCORETWO,
+    @ELOONE,
+    @CATEGORY,
+    @ELOTWO);";
             cmd.Parameters.AddWithValue("@MRDATE", date);
             cmd.Parameters.AddWithValue("@TEAMONE", teamOne);
             cmd.Parameters.AddWithValue("@TEAMTWO", teamTwo);
@@ -238,8 +258,9 @@ VALUES
             cmd.Parameters.AddWithValue("@LEAGUE", league);
             cmd.Parameters.AddWithValue("@SCOREONE", teamOneScore);
             cmd.Parameters.AddWithValue("@SCORETWO", teamTwoScore);
-            cmd.Parameters.AddWithValue("@ELO", elo);
+            cmd.Parameters.AddWithValue("@ELOONE", eloOne);
             cmd.Parameters.AddWithValue("@CATEGORY", category);
+            cmd.Parameters.AddWithValue("@ELOTWO", eloTwo);
             cmd.ExecuteNonQuery();
             conn.Close();
         }
