@@ -21,7 +21,7 @@
             <MudSelectItem Value=@("4")>Women's Indoor</MudSelectItem>
         </MudSelect>
     </MudItem>
-    
+
     <!-- LEAGUE -->
     <MudItem xs="10" sm="5" md="3">
         <MudSelect Label="League" Placeholder="Select league" @bind-Value="SelectedLeague" OffsetY="true" Dense="true" Variant="Variant.Outlined">
@@ -34,7 +34,7 @@
             }
         </MudSelect>
     </MudItem>
-    
+
     <!-- OPTIONAL: TEAM -->
     <MudItem xs="12" sm="6" md="4">
         <MudSelect Label="Team" Placeholder="Select team" @bind-Value="SelectedTeam" OffsetY="true" Dense="true" Variant="Variant.Outlined">
@@ -47,7 +47,7 @@
             }
         </MudSelect>
     </MudItem>
-    
+
     <!-- SEARCH -->
     <MudIconButton Icon="@Icons.Material.Filled.Search" OnClick="SearchButton"></MudIconButton>
 </MudGrid>
@@ -65,7 +65,7 @@
             // Match Card
             <MudGrid>
                 <MudItem xs="12" md="12">
-                    <MudPaper Class="d-flex py-2 px-1" Style="background-color: #C0D3FE">
+                    <MudPaper Class="d-flex py-2 px-1" Style="background-color: #e3e3e3">
                         <MudItem xs="3">
                             <MudPaper Class="pa-2 mx-2 mud-width-full" Elevation="0" Square="true">@fixture.Date.ToString("dd MMMM yyyy", CultureInfo.CurrentCulture)</MudPaper>
                         </MudItem>
@@ -88,7 +88,7 @@
                 </MudItem>
             </MudGrid>
         }
-        
+
     }
 }
 
@@ -96,13 +96,13 @@
     private string SelectedCategory { get; set; }
     private League SelectedLeague { get; set; }
     private Team SelectedTeam { get; set; }
-    
+
     private List<Team> _teams;
     private List<League> _leagues;
     private List<Fixture> _fixtures;
 
     private bool _showResults;
-    
+
     protected override async Task OnInitializedAsync()
     {
         _teams = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams;", new {}, _config.GetConnectionString("default"));
@@ -113,7 +113,7 @@
     {
         _showResults = true;
         await LoadFixturesAsync(SelectedCategory, SelectedLeague, SelectedTeam);
-        
+
     }
 
     private async Task LoadFixturesAsync(string category, League league, Team team)
