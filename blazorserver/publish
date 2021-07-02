@@ -1,0 +1,6 @@
+#!/bin/bash
+
+rm -r site
+dotnet publish -c Release -o site
+cd site
+zip -r ../deploy_bundle.zip *
