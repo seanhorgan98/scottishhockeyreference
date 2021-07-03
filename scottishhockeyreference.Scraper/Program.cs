@@ -15,7 +15,8 @@ namespace scottishhockeyreference.Scraper
         //static HttpClient client;
         private const string LeagueUrl = "https://www.scottish-hockey.org.uk/league-standings/";
         private const string resultsURL = "https://www.scottish-hockey.org.uk/latest-results/";
-        private const string htmlFile = "/home/sean/Desktop/Scottish Hockey Results 2020/Men Indoor Nat 3.html";
+        private const string htmlFile = "/home/sean/Desktop/Scottish Hockey Results 2020/Women Prem.html";
+        private const int LEAGUE_NUMBER = 4;
         // private static readonly string connectionString = "server=aa1su4hgu44u0mv.cxkd3gywhaht.eu-west-1.rds.amazonaws.com; port=3306; database=shr_prod; user=proddb; password=H4ppyF4c3; Persist Security Info=False; Connect Timeout=300";
         private const string connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
 
@@ -83,6 +84,7 @@ namespace scottishhockeyreference.Scraper
             DateTime currentDate = DateTime.MinValue;
             var mostRecentDate = GetMostRecentDate();
             //var topDate = DateTime.Parse(tableWrap.First().Text());
+            var fixtureList = new List<Fixture>();
 
             foreach (var row in tableWrap)
             {
@@ -110,7 +112,9 @@ namespace scottishhockeyreference.Scraper
                         // System.Console.WriteLine($"Current Date: {currentDate}, Database Date: {mostRecentDate}");
                         // break;
                     }
-                    var fixtureDate = currentDate;
+                    if (row.Children[1].Text().Contains("P") || row.Children[2].Text().Contains("P")) continue;
+                    var newFixture = new Fixture();
+                    newFixture.Date = currentDate;
                     var tempLeague = row.Children[0].Text();
 
                     // ADD WHEN RUNNING IN PRODUCTION
@@ -121,33 +125,41 @@ namespace scottishhockeyreference.Scraper
                     // IF LEAGUE IS ACTUALLY A CUP IGNORE??
 
                     // Need to change numbers when not on league page
-                    var fixtureLeague = 15; //GetLeagueIDByName(leagueList, tempLeague);
-                    var fixtureTeamOne = GetTeamIdByName(teamList, row.Children[0].Text());
-                    var fixtureTeamOneScore = Convert.ToInt32(row.Children[1].Text());
-                    var fixtureTeamTwoScore = Convert.ToInt32(row.Children[2].Text());
-                    var fixtureTeamTwo = GetTeamIdByName(teamList, row.Children[3].Text());
-                    var fixtureLocation = row.Children[4].Text();
-                    var fixtureCategory = GetCategoryByLeague(leagueList, fixtureLeague);
-                    if (fixtureTeamOne == 0 || fixtureTeamTwo == 0) continue;
+                    System.Console.WriteLine(row.Text());
+                    newFixture.league = LEAGUE_NUMBER; //GetLeagueIDByName(leagueList, tempLeague);
+                    newFixture.teamOne = GetTeamIdByName(teamList, row.Children[0].Text());
+                    newFixture.teamOneScore = Convert.ToInt32(row.Children[1].Text());
+                    newFixture.teamTwoScore = Convert.ToInt32(row.Children[2].Text());
+                    newFixture.teamTwo = GetTeamIdByName(teamList, row.Children[3].Text());
+                    newFixture.location = row.Children[4].Text();
+                    newFixture.category = GetCategoryByLeague(leagueList, newFixture.league);
+                    if (newFixture.teamOne == 0 || newFixture.teamTwo == 0) continue;
+                    fixtureList.Add(newFixture);
+                }
+            }
 
-                    var eloChanges = CalculateElo(fixtureTeamOne, fixtureTeamOneScore, fixtureTeamTwo, fixtureTeamTwoScore, 0);
+            fixtureList.Reverse();
+
+            foreach (var fixture in fixtureList)
+            {
+                    var eloChanges = CalculateElo(fixture.teamOne, fixture.teamOneScore, fixture.teamTwo, fixture.teamTwoScore, 0, fixture.category);
                     var eloOneChange = eloChanges.Item1;
                     var eloTwoChange = eloChanges.Item2;
-                    PostFixtureToDatabase(fixtureDate, fixtureLeague, fixtureTeamOne, fixtureTeamTwo, fixtureTeamOneScore, fixtureTeamTwoScore, fixtureLocation, eloOneChange, fixtureCategory, eloTwoChange);
-                    UpdateTeamEloRating(fixtureTeamOne, eloOneChange);
-                    UpdateTeamEloRating(fixtureTeamTwo, eloTwoChange);
-                    Console.WriteLine($"{fixtureDate.ToShortDateString()}: {fixtureLeague}, {fixtureTeamOne} {fixtureTeamOneScore} - {fixtureTeamTwoScore} {fixtureTeamTwo}, {fixtureLocation}");
-                }
+                    PostFixtureToDatabase(fixture.Date, fixture.league, fixture.teamOne, fixture.teamTwo, fixture.teamOneScore, fixture.teamTwoScore, fixture.location, eloOneChange, fixture.category, eloTwoChange);
+                    UpdateTeamEloRating(fixture.teamOne, eloOneChange);
+                    UpdateTeamEloRating(fixture.teamTwo, eloTwoChange);
+                    Console.WriteLine($"{fixture.Date.ToShortDateString()}: {fixture.league}, {fixture.teamOne} {fixture.teamOneScore} - {fixture.teamTwoScore} {fixture.teamTwo}, {fixture.location}");
             }
             //SetMostRecentDay(topDate);
         }
 
-        private static (int, int) CalculateElo(int teamOneRating, int scoreOne, int teamTwoRating, int scoreTwo, int league)
+        private static (int, int) CalculateElo(int teamOneRating, int scoreOne, int teamTwoRating, int scoreTwo, int league, int category)
         {
             // Variables
             double K = 24;
             var scoreDifference = Math.Abs(scoreOne - scoreTwo);
-            System.Console.WriteLine("Score Differece: " + scoreDifference);
+            // System.Console.WriteLine("Score Differece: " + scoreDifference);
+
             if (scoreDifference == 2)
             {
                 K += K * 0.5;
@@ -155,7 +167,10 @@ namespace scottishhockeyreference.Scraper
             {
                 K += K * 0.75;
             }else if (scoreDifference > 3){
-                K += K * 0.75 + (scoreDifference-3)/8D;
+                if (category < 3)
+                {
+                    K += K * 0.75 + (scoreDifference-3)/8D;
+                }
             }
             var denominator = 400;
             float W = 1;              // w is the margin of victory weighting
@@ -809,6 +824,18 @@ VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
         //    // var response = await client.PostAsJsonAsync("http://localhost:5000/api/Leagues", leagueToPost);
         //    Console.WriteLine(response);
         //}
+    }
+
+    internal class Fixture
+    {
+        public DateTime Date { get; set; }
+        public int teamOne { get; set; }
+        public int teamTwo { get; set; }
+        public int teamOneScore { get; set; }
+        public int teamTwoScore { get; set; }
+        public int league { get; set; }
+        public int category { get; set; }
+        public string location { get; set; }
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
