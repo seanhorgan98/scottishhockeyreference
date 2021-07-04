@@ -20,8 +20,8 @@ namespace scottishhockeyreference.Scraper
         // private static readonly string connectionString = "server=aa1su4hgu44u0mv.cxkd3gywhaht.eu-west-1.rds.amazonaws.com; port=3306; database=shr_prod; user=proddb; password=H4ppyF4c3; Persist Security Info=False; Connect Timeout=300";
         private const string connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
 
-        private static async Task Main()
-        //private static void Main()
+        //private static async Task Main()
+        private static void Main()
         {
             //var clientHandler = new HttpClientHandler
             //{
@@ -36,8 +36,65 @@ namespace scottishhockeyreference.Scraper
             // await ScrapeNewTeams();
             // await ScrapePoints();
             // await ScrapeResults();
-            await TestScrape();
-            //CalculateElo(100, 5, 3000, 0, 0);
+            // await TestScrape();
+            RerunFixturesForElos();
+        }
+
+        private static void RerunFixturesForElos()
+        {
+            // Get all fixtures into a list (date, team1, team2, location, score1, score2, category)
+            // MUST BE CHRONOLOGICAL ORDER (order by date;)
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var fixtureList = new List<Fixture>();
+            var sqlSelect = "SELECT Date, Team_1_ID, Team_2_ID, Location, Team_1_Score, Team_2_Score, Hockey_Category_ID, ID FROM Fixtures order by date;";
+            var cmd = new MySqlCommand(sqlSelect, conn);
+            using (MySqlDataReader rdr = cmd.ExecuteReader()) {
+                while (rdr.Read()) {
+                    /* iterate once per row */
+                    var fixture = new Fixture();
+                    fixture.Date = rdr.GetDateTime(0);
+                    fixture.teamOne = rdr.GetInt32(1);
+                    fixture.teamTwo = rdr.GetInt32(2);
+                    fixture.location = rdr.GetString(3);
+                    fixture.teamOneScore = rdr.GetInt32(4);
+                    fixture.teamTwoScore = rdr.GetInt32(5);
+                    fixture.category = rdr.GetInt32(6);
+                    fixture.id = rdr.GetInt32(7);
+                    fixtureList.Add(fixture);
+                }
+            }
+            conn.Close();
+
+            // Loop through
+            foreach (var fixture in fixtureList)
+            {
+                // Get Ratings
+                var teamOneRating = GetTeamRating(fixture.teamOne);
+                var teamTwoRating = GetTeamRating(fixture.teamTwo);
+
+                // Calculate Elos
+                var eloChanges = CalculateElo(teamOneRating, fixture.teamOneScore, teamTwoRating, fixture.teamTwoScore, 0, fixture.category);
+                var eloOneChange = eloChanges.Item1;
+                var eloTwoChange = eloChanges.Item2;
+
+                // Update Elos for teams
+                UpdateTeamEloRating(fixture.teamOne, eloOneChange);
+                UpdateTeamEloRating(fixture.teamTwo, eloTwoChange);
+
+                // Update Elos for fixtures
+                conn.Open();
+                MySqlCommand cmd2 = conn.CreateCommand();
+                cmd2.CommandText = @"UPDATE Fixtures SET Team_1_Elo_Change = @TEAM1ELO, Team_2_Elo_Change = @TEAM2ELO WHERE ID = @ID;";
+                cmd2.Parameters.AddWithValue("@TEAM1ELO", eloOneChange);
+                cmd2.Parameters.AddWithValue("@TEAM2ELO", eloTwoChange);
+                cmd2.Parameters.AddWithValue("@ID", fixture.id);
+                cmd2.ExecuteNonQuery();
+                conn.Close();
+
+                Console.WriteLine($"{fixture.Date.ToShortDateString()}: {fixture.league}, {fixture.teamOne} {fixture.teamOneScore} - {fixture.teamTwoScore} {fixture.teamTwo}, {fixture.location}");
+            }
+
         }
 
         private static async Task TestScrape()
@@ -855,6 +912,7 @@ VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
         public int league { get; set; }
         public int category { get; set; }
         public string location { get; set; }
+        public int id { get; set; }
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
