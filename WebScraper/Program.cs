@@ -1,12 +1,17 @@
 ﻿using AngleSharp;
 using Newtonsoft.Json;
+using Serilog;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using AngleSharp.Dom;
 using MySql.Data.MySqlClient;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WebScraper
 {
@@ -20,26 +25,62 @@ namespace WebScraper
         // private static readonly string connectionString = "server=aa1su4hgu44u0mv.cxkd3gywhaht.eu-west-1.rds.amazonaws.com; port=3306; database=shr_prod; user=proddb; password=H4ppyF4c3; Persist Security Info=False; Connect Timeout=300";
         private const string connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
 
-        //private static async Task Main()
-        private static void Main()
+        static void Main(string[] args)
         {
-            //var clientHandler = new HttpClientHandler
-            //{
-            //    ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; }
-            //};
+            var builder = new ConfigurationBuilder();
+            BuildConfig(builder);
 
-            //// Pass the handler to httpclient(from you are calling api)
-            //client = new HttpClient(clientHandler);
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Build())
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
 
-            // DatabaseTest();
-            // await ScrapeLeagues();
-            // await ScrapeNewTeams();
-            // await ScrapePoints();
-            // await ScrapeResults();
-            // await TestScrape();
-            // RerunFixturesForElos();
-            System.Console.WriteLine("Program Ran");
+            Log.Logger.Information("Application Starting...");
+
+            var host = Host.CreateDefaultBuilder()
+                .ConfigureServices((context, services) =>
+                {
+                    services.AddTransient<IWebScraper, WebScraper>();
+                })
+                .UseSerilog()
+                .Build();
+
+            var svc = ActivatorUtilities.CreateInstance<WebScraper>(host.Services);
+            svc.Run();
         }
+        static void BuildConfig(IConfigurationBuilder builder)
+        {
+            builder.SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+                .AddEnvironmentVariables();
+        }
+
+
+        // private static async Task Main()
+        // //private static void Main()
+        // {
+        //     //var clientHandler = new HttpClientHandler
+        //     //{
+        //     //    ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; }
+        //     //};
+
+        //     //// Pass the handler to httpclient(from you are calling api)
+        //     //client = new HttpClient(clientHandler);
+
+        //     // DatabaseTest();
+        //     // await ScrapeLeagues();
+        //     // await ScrapeNewTeams();
+        //     // await ScrapePoints();
+        //     // await ScrapeResults();
+        //     // await TestScrape();
+        //     // RerunFixturesForElos();
+        //     var leagueList = await ScrapeLeagues.Scrape();
+        //     foreach(var item in leagueList) {
+        //         System.Console.WriteLine(item);
+        //     }
+        // }
 
         private static void RerunFixturesForElos()
         {
@@ -487,25 +528,25 @@ VALUES
 
         //}
 
-        private static async Task ScrapeLeagues()
-        {
-            var config = Configuration.Default.WithDefaultLoader();
-            var context = BrowsingContext.New(config);
-            var document = await context.OpenAsync(LeagueUrl);
-            var allLeagues = document.QuerySelectorAll("h2.text-uppercase");
+        // private static async Task ScrapeLeagues()
+        // {
+        //     var config = Configuration.Default.WithDefaultLoader();
+        //     var context = BrowsingContext.New(config);
+        //     var document = await context.OpenAsync(LeagueUrl);
+        //     var allLeagues = document.QuerySelectorAll("h2.text-uppercase");
 
-            System.Console.WriteLine("THERE");
-            foreach (var item in allLeagues)
-            {
-                // Console.WriteLine("HERE");
-                if (item.TextContent.Contains("Conference") || item.TextContent.Contains("Super"))
-                {
-                    System.Console.WriteLine("Skipped non-standard league: " + item.TextContent);
-                    continue;
-                }
-                SaveLeagueSql(item.TextContent, GetLeagueHockeyCategoryByName(item.TextContent));
-            }
-        }
+        //     System.Console.WriteLine("THERE");
+        //     foreach (var item in allLeagues)
+        //     {
+        //         // Console.WriteLine("HERE");
+        //         if (item.TextContent.Contains("Conference") || item.TextContent.Contains("Super"))
+        //         {
+        //             System.Console.WriteLine("Skipped non-standard league: " + item.TextContent);
+        //             continue;
+        //         }
+        //         SaveLeagueSql(item.TextContent, GetLeagueHockeyCategoryByName(item.TextContent));
+        //     }
+        // }
 
         private static void SaveLeagueSql(string name, int category)
         {
