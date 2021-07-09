@@ -12,6 +12,9 @@ using MySql.Data.MySqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using WebScraper.Interfaces;
+using WebScraper.Models;
+using WebScraper.Scrapers;
 
 namespace WebScraper
 {
@@ -42,6 +45,8 @@ namespace WebScraper
                 .ConfigureServices((context, services) =>
                 {
                     services.AddTransient<IWebScraper, WebScraper>();
+                    services.AddTransient<ILeagueScraper, ScrapeLeagues>();
+                    services.AddTransient<ITeamScraper, TeamScraper>();
                 })
                 .UseSerilog()
                 .Build();
@@ -957,41 +962,41 @@ VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
         public int id { get; set; }
     }
 
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class Team
-    {
-        public int ID { get; set; }
-        public string Teamname { get; init; }
-        public int League_ID { get; set; }
-        public string Sponsor { get; set; }
-        public int Hockey_Category_ID { get; set; }
-        public int League_Rank { get; set; }
-        public int SeasonDrawn { get; set; }
-        public int SeasonGoalDifference { get; set; }
-        public int SeasonGoalsAgainst { get; set; }
-        public int SeasonGoalsFor { get; set; }
-        public int SeasonLost { get; set; }
-        public int SeasonPlayed { get; set; }
-        public int SeasonPoints { get; set; }
-        public int SeasonWon { get; set; }
+    // [SuppressMessage("ReSharper", "InconsistentNaming")]
+    // internal class Team
+    // {
+    //     public int ID { get; set; }
+    //     public string Teamname { get; init; }
+    //     public int League_ID { get; set; }
+    //     public string Sponsor { get; set; }
+    //     public int Hockey_Category_ID { get; set; }
+    //     public int League_Rank { get; set; }
+    //     public int SeasonDrawn { get; set; }
+    //     public int SeasonGoalDifference { get; set; }
+    //     public int SeasonGoalsAgainst { get; set; }
+    //     public int SeasonGoalsFor { get; set; }
+    //     public int SeasonLost { get; set; }
+    //     public int SeasonPlayed { get; set; }
+    //     public int SeasonPoints { get; set; }
+    //     public int SeasonWon { get; set; }
+    //
+    //     internal Team()
+    //     {
+    //     }
+    // }
 
-        public Team()
-        {
-        }
-    }
-
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal class League
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public int Hockey_Category_ID { get; set; }
-
-        public League(int id, string name, int hockey_category_id)
-        {
-            this.Id = id;
-            this.Name = name;
-            this.Hockey_Category_ID = hockey_category_id;
-        }
-    }
+    // [SuppressMessage("ReSharper", "InconsistentNaming")]
+    // internal class League
+    // {
+    //     public int Id { get; set; }
+    //     public string Name { get; set; }
+    //     public int Hockey_Category_ID { get; set; }
+    //
+    //     internal League(int id, string name, int hockey_category_id)
+    //     {
+    //         this.Id = id;
+    //         this.Name = name;
+    //         this.Hockey_Category_ID = hockey_category_id;
+    //     }
+    // }
 }
