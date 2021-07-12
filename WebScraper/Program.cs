@@ -47,6 +47,7 @@ namespace WebScraper
                     services.AddTransient<ILeagueScraper, LeagueScraper>();
                     services.AddTransient<ITeamScraper, TeamScraper>();
                     services.AddTransient<IDbInteraction, DbInteraction>();
+                    services.AddTransient<IPointsScraper, PointsScraper>();
                 })
                 .UseSerilog()
                 .Build();
