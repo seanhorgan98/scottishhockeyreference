@@ -12,24 +12,34 @@ namespace WebScraper
         private readonly ILogger<WebScraper> _log;
         private readonly IConfiguration _config;
         private readonly ILeagueScraper _leagueScraper;
+        private readonly ITeamScraper _teamScraper;
 
-        public WebScraper(ILogger<WebScraper> log, IConfiguration config, ILeagueScraper leagueScraper)
+        public WebScraper
+        (
+            ILogger<WebScraper> log, 
+            IConfiguration config, 
+            ILeagueScraper leagueScraper, 
+            ITeamScraper teamScraper
+        )
         {
             _log = log;
             _config = config;
             _leagueScraper = leagueScraper;
+            _teamScraper = teamScraper;
         }
 
         public async Task Run()
         {
-            _log.LogInformation("Entered Web Scraper class.");
+            _log.LogInformation("Entered Web Scraper class");
             
             // Scrape Leagues
             var leagueList = await _leagueScraper.Scrape();
-            _log.LogInformation("Leagues: {leagueList}", leagueList);
+            _log.LogInformation("Leagues: { leagueList }", leagueList);
             
             // Scrape Teams
-            var teamScraper = new TeamScraper(_log, _config);
+            var teamList = await _teamScraper.Scrape();
+            _log.LogInformation("Teams: { teamList }", teamList);
+            // SaveTeamSQL()
         }
     }
 }

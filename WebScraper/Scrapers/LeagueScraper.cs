@@ -11,12 +11,12 @@ namespace WebScraper.Scrapers
 {
     using c = Microsoft.Extensions.Configuration;
 
-    public class ScrapeLeagues : ILeagueScraper
+    public class LeagueScraper : ILeagueScraper
     {
-        private readonly ILogger<ScrapeLeagues> _log;
+        private readonly ILogger<LeagueScraper> _log;
         private readonly c.IConfiguration _config;
 
-        public ScrapeLeagues(ILogger<ScrapeLeagues> log, c.IConfiguration config)
+        public LeagueScraper(ILogger<LeagueScraper> log, c.IConfiguration config)
         {
             _log = log;
             _config = config;

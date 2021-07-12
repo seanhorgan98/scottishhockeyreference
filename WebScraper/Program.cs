@@ -4,7 +4,6 @@ using Serilog;
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using AngleSharp.Dom;
@@ -42,11 +41,12 @@ namespace WebScraper
             Log.Logger.Information("Application Starting...");
 
             var host = Host.CreateDefaultBuilder()
-                .ConfigureServices((context, services) =>
+                .ConfigureServices((_, services) =>
                 {
                     services.AddTransient<IWebScraper, WebScraper>();
-                    services.AddTransient<ILeagueScraper, ScrapeLeagues>();
+                    services.AddTransient<ILeagueScraper, LeagueScraper>();
                     services.AddTransient<ITeamScraper, TeamScraper>();
+                    services.AddTransient<IDbInteraction, DbInteraction>();
                 })
                 .UseSerilog()
                 .Build();
@@ -75,13 +75,13 @@ namespace WebScraper
         //     //client = new HttpClient(clientHandler);
 
         //     // DatabaseTest();
-        //     // await ScrapeLeagues();
+        //     // await LeagueScraper();
         //     // await ScrapeNewTeams();
         //     // await ScrapePoints();
         //     // await ScrapeResults();
         //     // await TestScrape();
         //     // RerunFixturesForElos();
-        //     var leagueList = await ScrapeLeagues.Scrape();
+        //     var leagueList = await LeagueScraper.Scrape();
         //     foreach(var item in leagueList) {
         //         System.Console.WriteLine(item);
         //     }
@@ -259,7 +259,7 @@ namespace WebScraper
             //SetMostRecentDay(topDate);
         }
 
-        private static int GetTeamRating(int teamID)
+        /*private static int GetTeamRating(int teamID)
         {
             var rating = 0;
             var conn = new MySqlConnection(connectionString);
@@ -269,12 +269,12 @@ namespace WebScraper
             cmd.Parameters.AddWithValue("@TEAMID", teamID);
             using (MySqlDataReader rdr = cmd.ExecuteReader()) {
                 while (rdr.Read()) {
-                    /* iterate once per row */
+                    /* iterate once per row #1#
                     rating = rdr.GetInt32(0);
                 }
             }
             return rating;
-        }
+        }*/
 
         private static (int, int) CalculateElo(int teamOneRating, int scoreOne, int teamTwoRating, int scoreTwo, int league, int category)
         {
@@ -343,7 +343,7 @@ namespace WebScraper
             return (teamOneEloChange, teamTwoEloChange);
         }
 
-        private static void UpdateTeamEloRating(int teamID, int eloChange)
+        /*private static void UpdateTeamEloRating(int teamID, int eloChange)
         {
             // Update Elo Rating
             var conn = new MySqlConnection(connectionString);
@@ -357,9 +357,9 @@ WHERE Id = @TEAMID";
             cmd.Parameters.AddWithValue("@TEAMID", teamID);
             cmd.ExecuteNonQuery();
             conn.Close();
-        }
+        }*/
 
-        private static void PostFixtureToDatabase(DateTime date, int league, int teamOne, int teamTwo, int teamOneScore, int teamTwoScore, string location, int eloOne, int category, int eloTwo)
+        /*private static void PostFixtureToDatabase(DateTime date, int league, int teamOne, int teamTwo, int teamOneScore, int teamTwoScore, string location, int eloOne, int category, int eloTwo)
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
@@ -401,9 +401,9 @@ VALUES
             cmd.Parameters.AddWithValue("@ELOTWO", eloTwo);
             cmd.ExecuteNonQuery();
             conn.Close();
-        }
+        }*/
 
-        private static DateTime GetMostRecentDate()
+        /*private static DateTime GetMostRecentDate()
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
@@ -412,14 +412,14 @@ VALUES
             var cmd = new MySqlCommand(sqlSelect, conn);
             using (MySqlDataReader rdr = cmd.ExecuteReader()) {
                 while (rdr.Read()) {
-                    /* iterate once per row */
+                    /* iterate once per row #1#
                     mrDate = rdr.GetDateTime(0);
                 }
             }
             return mrDate;
-        }
+        }*/
 
-        private static void SetMostRecentDay(DateTime mrDate)
+        /*private static void SetMostRecentDay(DateTime mrDate)
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
@@ -428,7 +428,7 @@ VALUES
             cmd.Parameters.AddWithValue("@MRDATE", mrDate);
             cmd.ExecuteNonQuery();
             conn.Close();
-        }
+        }*/
 
         private static int GetCategoryByLeague(IEnumerable<League> leagueList, int currentLeagueId)
         {
@@ -529,11 +529,9 @@ VALUES
         //        }
         //    }
         //    System.Console.WriteLine(teamList.Single(x => x.ID == 823).Teamname);
-
-
         //}
 
-        // private static async Task ScrapeLeagues()
+        // private static async Task LeagueScraper()
         // {
         //     var config = Configuration.Default.WithDefaultLoader();
         //     var context = BrowsingContext.New(config);
@@ -553,7 +551,7 @@ VALUES
         //     }
         // }
 
-        private static void SaveLeagueSql(string name, int category)
+        /*private static void SaveLeagueSql(string name, int category)
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
@@ -564,7 +562,7 @@ VALUES
             cmd.ExecuteNonQuery();
             conn.Close();
 
-        }
+        }*/
 
         private static async Task ScrapePoints()
         {
@@ -710,7 +708,7 @@ VALUES
                         teamToUpdate.ID = teamList.FirstOrDefault(x => x.Teamname == teamToUpdate.Teamname).ID;
                         teamToUpdate.League_ID = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).League_ID;
                         teamToUpdate.Hockey_Category_ID = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).Hockey_Category_ID;
-                        teamToUpdate.Sponsor = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).Sponsor;
+                        teamToUpdate.Sponsor =   teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).Sponsor;
                         teamToUpdate.League_Rank = rank;
                         teamToUpdate.SeasonPlayed = played;
                         teamToUpdate.SeasonWon = won;
@@ -727,7 +725,7 @@ VALUES
             }
         }
 
-        private static void SavePointsSQL(Team teamToUpdate)
+        /*private static void SavePointsSQL(Team teamToUpdate)
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
@@ -755,7 +753,7 @@ WHERE ID = @ID;";
             cmd.Parameters.AddWithValue("@ID", teamToUpdate.ID);
             cmd.ExecuteNonQuery();
             conn.Close();
-        }
+        }*/
 
         //static async Task ScrapeTeamNames()
         //{
@@ -885,7 +883,7 @@ WHERE ID = @ID;";
             }
         }
 
-        private static void SaveTeamSql(Team teamToPost)
+        /*private static void SaveTeamSql(Team teamToPost)
         {
             Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
             var conn = new MySqlConnection(connectionString);
@@ -900,7 +898,7 @@ VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
             cmd.Parameters.AddWithValue("@CATEGORY", teamToPost.Hockey_Category_ID);
             cmd.ExecuteNonQuery();
             conn.Close();
-        }
+        }*/
 
         private static void GetLeagueIdAndCategoryByName(IEnumerable<League> leagueList, string currentLeague, Team team)
         {
