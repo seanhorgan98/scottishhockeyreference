@@ -1,4 +1,4 @@
-@page "/Matches"
+@page "/Results"
 @using DataLibrary
 @using blazorserver.Models
 @using Microsoft.Extensions.Configuration
@@ -7,7 +7,7 @@
 @inject IConfiguration _config
 
 <hr/>
-<h2>Matches</h2>
+<h3>Results</h3>
 
 
 <MudGrid>
@@ -55,7 +55,6 @@
 <hr/>
 @if (_showResults)
 {
-    <h3>Results</h3>
     if (_fixtures != null)
     {
         foreach (var fixture in _fixtures)
