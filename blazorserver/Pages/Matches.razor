@@ -167,16 +167,23 @@
             return;
         }
         await LoadFixturesAsync(SelectedCategory, SelectedLeague, SelectedTeam, _offset, Take);
-        if (_offset > _fixtureCount) _hideNext = true;
+        if (_offset > _fixtureCount - Take) _hideNext = true;
         if (_offset >= 10) _hidePrev = false;
     }
 
     private async Task ShowPrev()
     {
         _offset -= Take;
-        if (_offset < 0) _offset = 0;
+        if (_offset < 0)
+        {
+            _offset = 0;
+            _hidePrev = true;
+        }
         await LoadFixturesAsync(SelectedCategory, SelectedLeague, SelectedTeam, _offset, Take);
-        if (_offset > _fixtureCount - 10) _hideNext = false;
-        if (_offset < 10) _hidePrev = true;
+        if (_offset < Take)
+        {
+            _hidePrev = true;
+        }
+        _hideNext = false;
     }
 }
