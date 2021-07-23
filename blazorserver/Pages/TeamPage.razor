@@ -17,7 +17,45 @@ else
     // Form
     <hr/>
     <h4>Form</h4>
-    <p>TODO: display form</p>
+    
+    <MudButtonGroup Color="Color.Primary" Variant="Variant.Text">
+        @foreach (var game in RecentForm)
+        {
+            // Home win
+            if ((game.Team_1_ID == Team.Id) && (game.Team_1_Score > game.Team_2_Score))
+            {
+                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Success">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+            }
+            // Away win
+            if ((game.Team_2_ID == Team.Id) && (game.Team_2_Score > game.Team_1_Score))
+            {
+                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Success">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+            }
+            // Home Draw
+            if ((game.Team_1_ID == Team.Id) && (game.Team_1_Score == game.Team_2_Score))
+            {
+                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Default">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+            }
+            // Home Draw
+            if ((game.Team_2_ID == Team.Id) && (game.Team_1_Score == game.Team_2_Score))
+            {
+                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Default">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+            }
+            // Home loss
+            if ((game.Team_1_ID == Team.Id) && (game.Team_1_Score < game.Team_2_Score))
+            {
+                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Warning">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+            }
+            // Away loss
+            if ((game.Team_2_ID == Team.Id) && (game.Team_2_Score < game.Team_1_Score))
+            {
+                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Warning">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+            }
+        }
+        
+    </MudButtonGroup>
+    
+    
     
     // Season Stats
     <hr/>
@@ -79,10 +117,6 @@ else
         </tr>
         </tbody>
     </MudSimpleTable>
-    
-    // Upcoming fixtures
-    <hr/>
-    <h4>Upcoming Fixtures</h4>
 }
 
 @code {
@@ -90,10 +124,14 @@ else
     public string Id { get; set; }
 
     private Team Team { get; set; }
+    private List<Form> RecentForm { get; set; }
     
     protected override async Task OnInitializedAsync()
     {
         Team = await _data.LoadDataSingle<Team, dynamic>($"SELECT * FROM Teams WHERE ID = {Id};", new {}, _config.GetConnectionString("default"));
-    // Add call for leagues to match up and display
+        RecentForm = await _data.LoadData<Form, dynamic>($@"SELECT Team_1_ID, Team_2_ID, Team_1_Score, Team_2_Score FROM Fixtures 
+WHERE Team_1_ID = {Id} OR Team_2_ID = {Id}
+ORDER BY Date desc LIMIT 5", new {},
+        _config.GetConnectionString("default"));
     }
 }
