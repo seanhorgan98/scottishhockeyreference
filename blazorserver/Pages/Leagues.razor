@@ -215,7 +215,7 @@
     protected override async Task OnInitializedAsync()
     {
         _teams = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams;", new {}, _config.GetConnectionString("default"));
-        _leagues = await _data.LoadData<League, dynamic>("SELECT * FROM Leagues;", new {}, _config.GetConnectionString("default"));
+        _leagues = await _data.LoadData<League, dynamic>("SELECT * FROM Leagues ORDER BY Tier;", new {}, _config.GetConnectionString("default"));
         foreach (var l in _leagues)
         {
             switch (l.Hockey_Category_Id)
