@@ -44,12 +44,12 @@ else
             // Home loss
             if ((game.Team_1_ID == Team.Id) && (game.Team_1_Score < game.Team_2_Score))
             {
-                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Warning">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Error">@game.Team_1_Score - @game.Team_2_Score</MudButton>
             }
             // Away loss
             if ((game.Team_2_ID == Team.Id) && (game.Team_2_Score < game.Team_1_Score))
             {
-                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Warning">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Error">@game.Team_1_Score - @game.Team_2_Score</MudButton>
             }
         }
         
