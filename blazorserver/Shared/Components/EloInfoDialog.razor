@@ -1,0 +1,40 @@
+<MudDialog>
+    <DialogContent>
+        <MudContainer Style="max-height: 300px; overflow-y: scroll">
+            This rankings page uses the Elo system to rate teams. This is a simple rating system used to rank head-to-head sports
+            event and games like chess.
+            <br/>
+            In essence, Elo assigns every team a rating based on their previous results. When two teams are matched up, the win
+            probability for each team is calculated and the winning team is awarded a number of points relative to their expected
+            win probability. The losing team's rating is reduced by the same amount.
+            <br/>
+            This means that upsets award many points and teams that win when they are expected to only receive a small bump in
+            rating.
+            <br/>
+            The calculations also take the magin of victory into account so the more goals a team wins by will result in
+            a larger increase in ratings. Likewise for rating decrease from losing by a large margin.
+            <br/>
+            <br/>
+            As there were a large amount of walk over games during the 2019-2020 season due to COVID-19, this might misrepresent
+            teams true strength. Therefore rankings will start from the 2021-2022 season.
+            Ratings tend to converge on a team's true strength relative to its competitors after about 30 matches.
+            Ratings for teams with fewer than 30 matches should be considered provisional.
+            <br/>
+            <br/>
+            It is slightly unusual to use Elo ratings in a sports environment with leagues, promotion, and relegation however
+            this can be taken into acount by staggering the starting Elo ratings for teams relative to the strength of the league
+            each team plays in. For example, the men's premiership league teams will start on a rating of 2000 and teams in
+            men's regional 2 may only start on 1500.
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Submit">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+}
+
