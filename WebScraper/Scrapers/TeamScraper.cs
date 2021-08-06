@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AngleSharp;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
 using WebScraper.Interfaces;
 using WebScraper.Models;
 using static AngleSharp.Configuration;
@@ -16,11 +16,13 @@ namespace WebScraper.Scrapers
     {
         private readonly ILogger<TeamScraper> _log;
         private readonly IConfiguration _config;
+        private readonly IDbInteraction _db;
 
-        public TeamScraper(ILogger<TeamScraper> log, IConfiguration config)
+        public TeamScraper(ILogger<TeamScraper> log, IConfiguration config, IDbInteraction db)
         {
             _log = log;
             _config = config;
+            _db = db;
         }
 
         public async Task<List<Team>> ScrapeAsync()
@@ -33,36 +35,12 @@ namespace WebScraper.Scrapers
             var returnList = new List<Team>();
 
             // Get Leagues from Database
-            var dbLeagueList = new List<League>();
-            var conn = new MySqlConnection(_config.GetValue<string>("ConnectionString"));
-            conn.Open();
-            const string sqlSelect = "SELECT * FROM Leagues";
-            var cmd = new MySqlCommand(sqlSelect, conn);
-            await using (var rdr = cmd.ExecuteReader())
-            {
-                while (rdr.Read())
-                {
-                    /* iterate once per row */
-                    var league = new League { Id = rdr.GetInt32(0), Name = ((rdr.IsDBNull(1)) ? "" : rdr.GetString(1)), HockeyCategoryID = rdr.GetInt32(2)};
-                    dbLeagueList.Add(league);
-                }
-            }
-
-
-            //// var leagueResponse = await client.GetAsync("http://localhost:33988/api/Leagues");
-            //var leagueResponse = await client.GetAsync("http://localhost:5000/api/Leagues");
-            //leagueResponse.EnsureSuccessStatusCode();
-            //var leagueResponseBody = await leagueResponse.Content.ReadAsStringAsync();
-            //var leagueList = JsonConvert.DeserializeObject<List<League>>(leagueResponseBody);
+            var dbLeagueList = _db.GetAllLeagues();
 
             // Scrape all leagues
-            var leagueList = new List<string>();
             var allLeagues = document.QuerySelectorAll("h2.text-uppercase");
 
-            foreach (var item in allLeagues)
-            {
-                leagueList.Add(item.TextContent);
-            }
+            var leagueList = allLeagues.Select(item => item.TextContent).ToList();
 
             var index = 0;
             _ = document.QuerySelectorAll("div.tableWrap");
@@ -73,7 +51,7 @@ namespace WebScraper.Scrapers
             {
                 if (leagueList[index].Contains("Conference") || leagueList[index].Contains("Super"))
                 {
-                    Console.WriteLine("Skipped non-standard league: " + leagueList[index]);
+                    _log.LogInformation("Skipped non-standard league: {SkippedLeague}", leagueList[index]);
                     index++;
                     continue;
                 }
@@ -91,21 +69,19 @@ namespace WebScraper.Scrapers
                     var i = 0;
                     foreach (var item in teamDetails)
                     {
-                        if (i % 3 == 0)
+                        switch (i % 3)
                         {
-                            i++;
-                            continue;
+                            case 0:
+                                i++;
+                                continue;
+                            case 1:
+                                currentTeam = item.TextContent;
+                                break;
+                            case 2:
+                                currentSponsor = item.TextContent;
+                                break;
                         }
-                        else if (i % 3 == 1)
-                        {
-                            currentTeam = item.TextContent;
 
-                        }
-                        else if (i % 3 == 2)
-                        {
-                            currentSponsor = item.TextContent;
-
-                        }
                         i++;
                     }
                     // Get Category
@@ -115,7 +91,6 @@ namespace WebScraper.Scrapers
                         Sponsor = currentSponsor,
                         LeagueRank = rank
                     };
-                    // Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
                     GetLeagueIdAndCategoryByName(dbLeagueList, currentLeague, teamToPost);
                     
                     returnList.Add(teamToPost);

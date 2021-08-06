@@ -16,8 +16,10 @@ namespace WebScraper.Scrapers
     /*
      * Scraper for pulling in fixtures from a league page file.
      */
-    public class FileResultScraper
+    public class FileResultScraper : IResultScraper
     {
+        private const int LeagueNumber = 5;
+        private const string HtmlFile = "";
         private readonly ILogger<FileResultScraper> _log;
         private readonly c.IConfiguration _config;
         private readonly IDbInteraction _db;
@@ -29,7 +31,7 @@ namespace WebScraper.Scrapers
             _db = db;
         }
 
-        public async Task<List<Fixture>> ScrapeAsync(string htmlFile, int leagueNumber)
+        public async Task<List<Fixture>> ScrapeAsync()
         {
             // Get List of Leagues
             var leagueList = _db.GetAllLeagues();
@@ -40,7 +42,7 @@ namespace WebScraper.Scrapers
 
             var config = Configuration.Default.WithDefaultLoader();
             var context = BrowsingContext.New(config);
-            var htmlText = await System.IO.File.ReadAllTextAsync(htmlFile);
+            var htmlText = await System.IO.File.ReadAllTextAsync(HtmlFile);
             //var document = await context.OpenAsync(resultsURL);
             var document = await context.OpenAsync(req => req.Content(htmlText));
             var tableWrap = document.All.Where(m => m.LocalName == "tr");
@@ -79,7 +81,7 @@ namespace WebScraper.Scrapers
                     var newFixture = new Fixture
                     {
                         Date = currentDate,
-                        League = leagueNumber,
+                        League = LeagueNumber,  //GetLeagueIDByName(leagueList, tempLeague);
                         TeamOne = GetTeamIdByName(teamList, row.Children[0].Text()),
                         TeamOneScore = Convert.ToInt32(row.Children[1].Text()),
                         TeamTwoScore = Convert.ToInt32(row.Children[2].Text()),
@@ -94,9 +96,7 @@ namespace WebScraper.Scrapers
                     //     continue;
                     // }
                     // IF LEAGUE IS ACTUALLY A CUP IGNORE??
-
-                    // Need to change numbers when not on league page
-                    //GetLeagueIDByName(leagueList, tempLeague);
+                    
                     newFixture.Category = GetCategoryByLeague(leagueList, newFixture.League);
                     if (newFixture.TeamOne == 0 || newFixture.TeamTwo == 0) continue;
                     fixtureList.Add(newFixture);
@@ -131,6 +131,11 @@ namespace WebScraper.Scrapers
         {
             var temp = leagueList.SingleOrDefault(x => x.Id == currentLeagueId);
             return temp?.HockeyCategoryID ?? 1;
+        }
+        
+        private static int GetLeagueIDByName(IEnumerable<League> leagueList, string currentLeague)
+        {
+            return (from league in leagueList where league.Name.Equals(currentLeague) select league.Id).FirstOrDefault();
         }
     }
 }

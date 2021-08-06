@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AngleSharp;
+using AngleSharp.Dom;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using WebScraper.Interfaces;
@@ -47,12 +48,17 @@ namespace WebScraper.Scrapers
             // For each league table
             var leagueTeams = document.QuerySelectorAll("table.league-standings");
             foreach (var league in leagueTeams)
-            {
+            {  
+                if (league.PreviousElementSibling.Text().Contains("Super") || league.PreviousElementSibling.Text().Contains("Conference"))
+                {
+                    _log.LogInformation("League Skipped: Non-standard league: {League}", league.PreviousElementSibling.Text());
+                    continue;
+                }
+                
                 // For each row in league
                 var teamRow = league.QuerySelectorAll("tr.mobile-border");
                 foreach (var div in teamRow)
                 {
-                    _log.LogInformation("There");
                     var currentTeam = "";
                     // Take only the teamname and the sponsor
                     var teamDetails = div.QuerySelectorAll("th.no-border.team-details");
@@ -69,44 +75,40 @@ namespace WebScraper.Scrapers
                     var j = 0;
                     foreach (var item in scoreDetails)
                     {
-                        if (j == 0)
+                        switch (j)
                         {
-                            rank = Int32.Parse(item.TextContent);
+                            case 0:
+                                rank = Int32.Parse(item.TextContent);
+                                break;
+                            case 1:
+                                played = Int32.Parse(item.TextContent);
+                                break;
+                            case 2:
+                                won = Int32.Parse(item.TextContent);
+                                break;
+                            case 3:
+                                drawn = Int32.Parse(item.TextContent);
+                                break;
+                            case 4:
+                                lost = Int32.Parse(item.TextContent);
+                                break;
+                            case 5:
+                                gfor = Int32.Parse(item.TextContent);
+                                break;
+                            case 6:
+                                gagainst = Int32.Parse(item.TextContent);
+                                break;
+                            case 7:
+                                gd = Int32.Parse(item.TextContent);
+                                break;
+                            case 8:
+                                points = Int32.Parse(item.TextContent);
+                                break;
                         }
-                        else if (j == 1)
-                        {
-                            played = Int32.Parse(item.TextContent);
-                        }
-                        else if (j == 2)
-                        {
-                            won = Int32.Parse(item.TextContent);
-                        }
-                        else if (j == 3)
-                        {
-                            drawn = Int32.Parse(item.TextContent);
-                        }
-                        else if (j == 4)
-                        {
-                            lost = Int32.Parse(item.TextContent);
-                        }
-                        else if (j == 5)
-                        {
-                            gfor = Int32.Parse(item.TextContent);
-                        }
-                        else if (j == 6)
-                        {
-                            gagainst = Int32.Parse(item.TextContent);
-                        }
-                        else if (j == 7)
-                        {
-                            gd = Int32.Parse(item.TextContent);
-                        }
-                        else if (j == 8)
-                        {
-                            points = Int32.Parse(item.TextContent);
-                        }
+
                         j++;
                     }
+                    
                     // Update team with new points
                     var teamToUpdate = new Team
                     {

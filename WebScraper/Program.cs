@@ -1,33 +1,18 @@
-﻿using AngleSharp;
-using Newtonsoft.Json;
-using Serilog;
+﻿using Serilog;
 using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using AngleSharp.Dom;
-using MySql.Data.MySqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using WebScraper.Interfaces;
-using WebScraper.Models;
 using WebScraper.Scrapers;
 
 namespace WebScraper
 {
-    internal class Program
+    public static class Program
     {
-        //static HttpClient client;
-        private const string LeagueUrl = "https://www.scottish-hockey.org.uk/league-standings/";
-        private const string resultsURL = "https://www.scottish-hockey.org.uk/latest-results/";
-        private const string htmlFile = "/home/sean/Desktop/Scottish Hockey Results 2020/Women Prem.html";
-        private const int LEAGUE_NUMBER = 4;
-        // private static readonly string connectionString = "server=aa1su4hgu44u0mv.cxkd3gywhaht.eu-west-1.rds.amazonaws.com; port=3306; database=shr_prod; user=proddb; password=H4ppyF4c3; Persist Security Info=False; Connect Timeout=300";
-        private const string connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
-
-        static async Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = new ConfigurationBuilder();
             BuildConfig(builder);
@@ -48,6 +33,8 @@ namespace WebScraper
                     services.AddTransient<ITeamScraper, TeamScraper>();
                     services.AddTransient<IDbInteraction, DbInteraction>();
                     services.AddTransient<IPointsScraper, PointsScraper>();
+                    services.AddTransient<IResultScraper, ResultScraper>();
+                    services.AddTransient<Elo>();
                 })
                 .UseSerilog()
                 .Build();
@@ -88,7 +75,8 @@ namespace WebScraper
         //     }
         // }
 
-        private static void RerunFixturesForElos()
+        // Used for Runing through fixtures from SQL string to reprocess their Elo calculations
+        /*private static void RerunFixturesForElos()
         {
             // Get all fixtures into a list (date, team1, team2, location, score1, score2, category)
             // MUST BE CHRONOLOGICAL ORDER (order by date;)
@@ -99,7 +87,7 @@ namespace WebScraper
             var cmd = new MySqlCommand(sqlSelect, conn);
             using (MySqlDataReader rdr = cmd.ExecuteReader()) {
                 while (rdr.Read()) {
-                    /* iterate once per row */
+                    /* iterate once per row #1#
                     var fixture = new Fixture();
                     fixture.Date = rdr.GetDateTime(0);
                     fixture.teamOne = rdr.GetInt32(1);
@@ -143,7 +131,7 @@ namespace WebScraper
                 Console.WriteLine($"{fixture.Date.ToShortDateString()}: {fixture.league}, {fixture.teamOne} {fixture.teamOneScore} - {fixture.teamTwoScore} {fixture.teamTwo}, {fixture.location}");
             }
 
-        }
+        }*/
 
         // Test Scrape is for scraping fixtures from a league page file
         /*private static async Task TestScrape()
@@ -456,7 +444,7 @@ VALUES
         }*/
 
         // Used by test scrape (fixtures)
-        private static int GetLeagueIDByName(IEnumerable<League> leagueList, string currentLeague)
+        /*private static int GetLeagueIDByName(IEnumerable<League> leagueList, string currentLeague)
         {
             foreach (var league in leagueList)
             {
@@ -464,9 +452,9 @@ VALUES
                 return league.Id;
             }
             return 0;
-        }
+        }*/
 
-        private static async Task ScrapeResults()
+        /*private static async Task ScrapeResults()
         {
             var config = Configuration.Default.WithDefaultLoader();
             var context = BrowsingContext.New(config);
@@ -510,7 +498,7 @@ VALUES
                     Console.WriteLine($"Division: {divisions[i]}, Team 1: {teamOnes[i]}: {homeScore[i]} - {awayScore[i]}: {teamTwos[i]}, Location: {location[i]}");
                 }
             }
-        }
+        }*/
 
         //private static void DatabaseTest()
         //{
@@ -789,7 +777,7 @@ WHERE ID = @ID;";
         //    }
         //}
 
-        private static async Task ScrapeNewTeams()
+        /*private static async Task ScrapeNewTeams()
         {
             var config = Configuration.Default.WithDefaultLoader();
             var context = BrowsingContext.New(config);
@@ -805,7 +793,7 @@ WHERE ID = @ID;";
             {
                 while (rdr.Read())
                 {
-                    /* iterate once per row */
+                    /* iterate once per row #1#
                     var league = new League(rdr.GetInt32(0), (rdr.IsDBNull(1)) ? "" : rdr.GetString(1), rdr.GetInt32(2));
                     dbLeagueList.Add(league);
                 }
@@ -886,7 +874,7 @@ WHERE ID = @ID;";
                 }
                 index++;
             }
-        }
+        }*/
 
         /*private static void SaveTeamSql(Team teamToPost)
         {

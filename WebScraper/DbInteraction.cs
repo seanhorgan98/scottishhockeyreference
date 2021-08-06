@@ -116,7 +116,7 @@ VALUES
             var conn = new MySqlConnection(_config.GetValue<string>("ConnectionString"));
             conn.Open();
             var mrDate = new DateTime();
-            const string sqlSelect = "SELECT * FROM Scraper;";
+            const string sqlSelect = "SELECT * FROM Most_Recent_Date;";
             var cmd = new MySqlCommand(sqlSelect, conn);
             using var rdr = cmd.ExecuteReader();
             while (rdr.Read())

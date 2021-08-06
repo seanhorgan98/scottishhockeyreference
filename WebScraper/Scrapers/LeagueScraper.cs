@@ -38,7 +38,7 @@ namespace WebScraper.Scrapers
                     _log.LogInformation("Skipped non-standard league: {League}", item.TextContent);
                     continue;
                 }
-                // SaveLeagueSql(item.TextContent, GetLeagueHockeyCategoryByName(item.TextContent));
+                
                 if (!leagueList.Exists(x => x.Name == item.Text()))
                 {
                     leagueList.Add(new League {Name = item.Text()});
