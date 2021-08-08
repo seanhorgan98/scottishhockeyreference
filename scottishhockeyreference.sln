@@ -1,12 +1,12 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.0.0
 MinimumVisualStudioVersion = 16.0.0.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "scottishhockeyreference.Scraper", "scottishhockeyreference.Scraper\scottishhockeyreference.Scraper.csproj", "{C034DB3B-8690-4CF2-82F3-757EC3314134}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "blazorserver", "blazorserver\blazorserver.csproj", "{F21099C9-3DEA-4F74-AF46-BD7672601E5F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLibrary", "DataLibrary\DataLibrary.csproj", "{120074B6-083F-49A7-9063-DAEE8BD84BBB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebScraper", "WebScraper\WebScraper.csproj", "{AFAFBE15-4829-4F0F-9249-007C12421EDB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{424DB876-4FC1-4FF8-8DA0-BF1C1205FD34}"
 EndProject
@@ -58,6 +58,18 @@ Global
 		{120074B6-083F-49A7-9063-DAEE8BD84BBB}.Release|x64.Build.0 = Release|Any CPU
 		{120074B6-083F-49A7-9063-DAEE8BD84BBB}.Release|x86.ActiveCfg = Release|Any CPU
 		{120074B6-083F-49A7-9063-DAEE8BD84BBB}.Release|x86.Build.0 = Release|Any CPU
+		{AFAFBE15-4829-4F0F-9249-007C12421EDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFAFBE15-4829-4F0F-9249-007C12421EDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFAFBE15-4829-4F0F-9249-007C12421EDB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AFAFBE15-4829-4F0F-9249-007C12421EDB}.Debug|x64.Build.0 = Debug|Any CPU
+		{AFAFBE15-4829-4F0F-9249-007C12421EDB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AFAFBE15-4829-4F0F-9249-007C12421EDB}.Debug|x86.Build.0 = Debug|Any CPU
+		{AFAFBE15-4829-4F0F-9249-007C12421EDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFAFBE15-4829-4F0F-9249-007C12421EDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFAFBE15-4829-4F0F-9249-007C12421EDB}.Release|x64.ActiveCfg = Release|Any CPU
+		{AFAFBE15-4829-4F0F-9249-007C12421EDB}.Release|x64.Build.0 = Release|Any CPU
+		{AFAFBE15-4829-4F0F-9249-007C12421EDB}.Release|x86.ActiveCfg = Release|Any CPU
+		{AFAFBE15-4829-4F0F-9249-007C12421EDB}.Release|x86.Build.0 = Release|Any CPU
 		{424DB876-4FC1-4FF8-8DA0-BF1C1205FD34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{424DB876-4FC1-4FF8-8DA0-BF1C1205FD34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{424DB876-4FC1-4FF8-8DA0-BF1C1205FD34}.Debug|x64.ActiveCfg = Debug|Any CPU
