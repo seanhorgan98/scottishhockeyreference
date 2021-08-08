@@ -1,12 +1,20 @@
 @page "/Rankings"
 @using DataLibrary
 @using blazorserver.Models
+@using blazorserver.Shared.Components
 @using Microsoft.Extensions.Configuration
 @inject IDataAccess _data
 @inject IConfiguration _config
+@inject IDialogService DialogService
+
 
 <hr/>
-<h3>Rankings</h3>
+<MudPaper Class="d-flex justify-space-between py-2 px-1" Elevation="0">
+    <h3>Rankings</h3>
+    <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Outlined.Info" OnClick="OpenInfoDialog">Info</MudButton>
+
+</MudPaper>
+
 
 @if (_teams == null)
 {
@@ -59,4 +67,10 @@ else
         var temp = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams;", new {}, _config.GetConnectionString("default"));
         _teams = temp.OrderByDescending(x => x.Rating).ToList();
     }
+
+    private void OpenInfoDialog()
+    {
+        DialogService.Show<EloInfoDialog>("Elo Information", new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true });
+    }
+
 }

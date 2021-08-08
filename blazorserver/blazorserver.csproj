@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazor-Analytics" Version="3.6.0" />
     <PackageReference Include="MudBlazor" Version="5.0.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
@@ -20,6 +21,27 @@
     <_ContentIncludedByDefault Remove="site\appsettings.Production.json" />
     <_ContentIncludedByDefault Remove="site\blazorserver.deps.json" />
     <_ContentIncludedByDefault Remove="site\blazorserver.runtimeconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".ebextensions\00_install_certbot.config" />
+    <None Include=".ebextensions\01_open_https_port.config" />
+    <None Include=".ebextensions\02_grant_executable_rights.config" />
+    <None Include=".ebextensions\03_renew_ssl_certificate_cron_job.config" />
+    <None Remove="site\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include=".platform\hooks\postdeploy\00_get_certificate.sh" />
+    <Content Remove="site\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="site\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="site\**" />
   </ItemGroup>
 
 </Project>

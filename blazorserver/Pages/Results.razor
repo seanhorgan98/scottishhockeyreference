@@ -1,4 +1,4 @@
-@page "/Matches"
+@page "/Results"
 @using DataLibrary
 @using blazorserver.Models
 @using Microsoft.Extensions.Configuration
@@ -7,7 +7,7 @@
 @inject IConfiguration _config
 
 <hr/>
-<h2>Matches</h2>
+<h2>Results</h2>
 
 
 <MudGrid>
@@ -21,7 +21,7 @@
             <MudSelectItem Value=@("4")>Women's Indoor</MudSelectItem>
         </MudSelect>
     </MudItem>
-    
+
     <!-- LEAGUE -->
     <MudItem xs="10" sm="5" md="3">
         <MudSelect Label="League" Placeholder="Select league" @bind-Value="SelectedLeague" OffsetY="true" Dense="true" Variant="Variant.Outlined">
@@ -34,7 +34,7 @@
             }
         </MudSelect>
     </MudItem>
-    
+
     <!-- OPTIONAL: TEAM -->
     <MudItem xs="12" sm="6" md="4">
         <MudSelect Label="Team" Placeholder="Select team" @bind-Value="SelectedTeam" OffsetY="true" Dense="true" Variant="Variant.Outlined">
@@ -47,7 +47,7 @@
             }
         </MudSelect>
     </MudItem>
-    
+
     <!-- SEARCH -->
     <MudIconButton Icon="@Icons.Material.Filled.Search" OnClick="SearchButton"></MudIconButton>
 </MudGrid>
@@ -55,7 +55,13 @@
 <hr/>
 @if (_showResults)
 {
-    <h3>Results</h3>
+    <MudGrid Class="d-flex justify-content-between">
+        <MudPaper Elevation="0"><h3> Results</h3></MudPaper>
+        <MudPaper Elevation="0">
+            <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="ShowPrev" Disabled="@_hidePrev">Prev</MudButton>
+            <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="ShowNext" Disabled="@_hideNext">Next</MudButton>
+        </MudPaper>
+    </MudGrid>
     if (_fixtures != null)
     {
         foreach (var fixture in _fixtures)
@@ -65,7 +71,7 @@
             // Match Card
             <MudGrid>
                 <MudItem xs="12" md="12">
-                    <MudPaper Class="d-flex py-2 px-1" Style="background-color: #C0D3FE">
+                    <MudPaper Class="d-flex py-2 px-1" Style="background-color: #e3e3e3">
                         <MudItem xs="3">
                             <MudPaper Class="pa-2 mx-2 mud-width-full" Elevation="0" Square="true">@fixture.Date.ToString("dd MMMM yyyy", CultureInfo.CurrentCulture)</MudPaper>
                         </MudItem>
@@ -88,7 +94,7 @@
                 </MudItem>
             </MudGrid>
         }
-        
+
     }
 }
 
@@ -96,13 +102,19 @@
     private string SelectedCategory { get; set; }
     private League SelectedLeague { get; set; }
     private Team SelectedTeam { get; set; }
-    
+
     private List<Team> _teams;
     private List<League> _leagues;
     private List<Fixture> _fixtures;
 
+    private int _offset;
+    private const int Take = 10;
+    private bool _hidePrev = true;
+    private bool _hideNext;
+    private int _fixtureCount;
+
     private bool _showResults;
-    
+
     protected override async Task OnInitializedAsync()
     {
         _teams = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams;", new {}, _config.GetConnectionString("default"));
@@ -112,29 +124,66 @@
     private async Task SearchButton()
     {
         _showResults = true;
-        await LoadFixturesAsync(SelectedCategory, SelectedLeague, SelectedTeam);
-        
+        _offset = 0;
+        _hidePrev = true;
+        _hideNext = false;
+        await LoadFixturesAsync(SelectedCategory, SelectedLeague, SelectedTeam, _offset, Take);
     }
 
-    private async Task LoadFixturesAsync(string category, League league, Team team)
+    private async Task LoadFixturesAsync(string category, League league, Team team, int offset, int take)
     {
-        var sql = "";
+        string sql, countSql;
         if (category is null or "0")
         {
-            sql = $"SELECT * FROM Fixtures order by Date desc";
+            sql = $"SELECT * FROM Fixtures order by Date desc LIMIT {offset},{take};";
+            countSql = $"SELECT COUNT(*) FROM Fixtures order by Date desc;";
         }
         else if (league == null)
         {
-            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} order by Date desc";
+            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} order by Date desc LIMIT {offset},{take};";
+            countSql = $"SELECT COUNT(*) FROM Fixtures WHERE Hockey_Category_ID = {category} order by Date desc;";
         }
         else if (team == null)
         {
-            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} AND League_ID = {league.Id} order by Date desc";
+            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} AND League_ID = {league.Id} order by Date desc LIMIT {offset},{take};";
+            countSql = $"SELECT COUNT(*) FROM Fixtures WHERE Hockey_Category_ID = {category} AND League_ID = {league.Id} order by Date desc;";
         }
         else
         {
-            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} AND League_ID = {league.Id} AND (Team_1_ID = {team.Id} OR Team_2_ID = {team.Id}) order by Date desc";
+            sql = $"SELECT * FROM Fixtures WHERE Hockey_Category_ID = {category} AND League_ID = {league.Id} AND (Team_1_ID = {team.Id} OR Team_2_ID = {team.Id}) order by Date desc LIMIT {offset},{take};";
+            countSql = $"SELECT COUNT(*) FROM Fixtures WHERE Hockey_Category_ID = {category} AND League_ID = {league.Id} AND (Team_1_ID = {team.Id} OR Team_2_ID = {team.Id}) order by Date desc;";
         }
         _fixtures = await _data.LoadData<Fixture, dynamic>(sql, new {}, _config.GetConnectionString("default"));
+        _fixtureCount = await _data.LoadDataSingle<int, dynamic>(countSql, new {}, _config.GetConnectionString("default"));
+    }
+
+    private async Task ShowNext()
+    {
+        _offset += Take;
+        if (_offset > _fixtureCount)
+        {
+            _offset = _fixtureCount;
+            _hideNext = true;
+            return;
+        }
+        await LoadFixturesAsync(SelectedCategory, SelectedLeague, SelectedTeam, _offset, Take);
+        if (_offset > _fixtureCount - Take) _hideNext = true;
+        if (_offset >= 10) _hidePrev = false;
+    }
+
+    private async Task ShowPrev()
+    {
+        _offset -= Take;
+        if (_offset < 0)
+        {
+            _offset = 0;
+            _hidePrev = true;
+        }
+        await LoadFixturesAsync(SelectedCategory, SelectedLeague, SelectedTeam, _offset, Take);
+        if (_offset < Take)
+        {
+            _hidePrev = true;
+        }
+        _hideNext = false;
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DataLibrary;
 using MudBlazor.Services;
+using Blazor.Analytics;
 
 namespace blazorserver
 {
@@ -25,6 +26,7 @@ namespace blazorserver
             services.AddServerSideBlazor();
             services.AddSingleton<IDataAccess, DataAccess>();
             services.AddMudServices();
+            services.AddGoogleAnalytics("G-BWFBS5MK1N");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
