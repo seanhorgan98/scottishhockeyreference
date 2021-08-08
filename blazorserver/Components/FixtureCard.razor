@@ -1,0 +1,50 @@
+@using System.Globalization
+@using blazorserver.Models
+
+@if (CurrentFixture == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <MudGrid>
+        <MudItem xs="12" md="12">
+            <MudPaper Class="d-flex py-2 px-1" Style="background-color: #e3e3e3">
+                <MudItem xs="3">
+                    <MudPaper Class="pa-2 mx-2 mud-width-full" Elevation="0" Square="true">@CurrentFixture.Date.ToString("dd MMMM yyyy", CultureInfo.CurrentCulture)</MudPaper>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudPaper Class="d-flex justify-content-center align-center">
+                        <MudItem xs="3" Elevation="0" Class="mud-text-align-center">
+                            <MudText Typo="Typo.button">@TeamOneName</MudText>
+                        </MudItem>
+                        <MudItem xs="3" Elevation="0" Class="d-flex align-center flex-column">
+                            <MudText Typo="Typo.overline">@Leagues.Find(x => x.Id == CurrentFixture.League_ID)?.Name</MudText>
+                            <MudText Typo="Typo.overline">@CurrentFixture.Team_1_Score - @CurrentFixture.Team_2_Score</MudText>
+                            <MudText Typo="Typo.overline">@CurrentFixture.Location</MudText>
+                        </MudItem>
+                        <MudItem xs="3" Elevation="0" Class="mud-text-align-center">
+                            <MudText Typo="Typo.button">@TeamTwoName</MudText>
+                        </MudItem>
+                    </MudPaper>
+                </MudItem>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+
+    [Parameter]
+    public Fixture CurrentFixture { get; set; }
+    
+    [Parameter]
+    public List<League> Leagues { get; set; }
+    
+    [Parameter]
+    public string TeamOneName { get; set; }
+    
+    [Parameter]
+    public string TeamTwoName { get; set; }
+
+}
