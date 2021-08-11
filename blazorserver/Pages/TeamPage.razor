@@ -18,43 +18,39 @@ else
     // Form
     <hr/>
     <h4>Form</h4>
-    
-    <MudButtonGroup Color="Color.Primary" Variant="Variant.Text">
-        @foreach (var game in RecentForm)
+    @foreach (var game in RecentForm)
+    {
+        // Home win
+        if ((game.Team_1_ID == Team.Id) && (game.Team_1_Score > game.Team_2_Score))
         {
-            // Home win
-            if ((game.Team_1_ID == Team.Id) && (game.Team_1_Score > game.Team_2_Score))
-            {
-                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Success">@game.Team_1_Score - @game.Team_2_Score</MudButton>
-            }
-            // Away win
-            if ((game.Team_2_ID == Team.Id) && (game.Team_2_Score > game.Team_1_Score))
-            {
-                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Success">@game.Team_1_Score - @game.Team_2_Score</MudButton>
-            }
-            // Home Draw
-            if ((game.Team_1_ID == Team.Id) && (game.Team_1_Score == game.Team_2_Score))
-            {
-                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Default">@game.Team_1_Score - @game.Team_2_Score</MudButton>
-            }
-            // Home Draw
-            if ((game.Team_2_ID == Team.Id) && (game.Team_1_Score == game.Team_2_Score))
-            {
-                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Default">@game.Team_1_Score - @game.Team_2_Score</MudButton>
-            }
-            // Home loss
-            if ((game.Team_1_ID == Team.Id) && (game.Team_1_Score < game.Team_2_Score))
-            {
-                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Error">@game.Team_1_Score - @game.Team_2_Score</MudButton>
-            }
-            // Away loss
-            if ((game.Team_2_ID == Team.Id) && (game.Team_2_Score < game.Team_1_Score))
-            {
-                <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Error">@game.Team_1_Score - @game.Team_2_Score</MudButton>
-            }
+            <MudButton DisableElevation="true" DisableRipple="true" Color="Color.Success" Variant="Variant.Filled">@game.Team_1_Score - @game.Team_2_Score</MudButton>
         }
-        
-    </MudButtonGroup>
+        // Away win
+        if ((game.Team_2_ID == Team.Id) && (game.Team_2_Score > game.Team_1_Score))
+        {
+            <MudButton DisableElevation="true" Variant="Variant.Filled" Color="Color.Success">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+        }
+        // Home Draw
+        if ((game.Team_1_ID == Team.Id) && (game.Team_1_Score == game.Team_2_Score))
+        {
+            <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Default">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+        }
+        // Home Draw
+        if ((game.Team_2_ID == Team.Id) && (game.Team_1_Score == game.Team_2_Score))
+        {
+            <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Default">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+        }
+        // Home loss
+        if ((game.Team_1_ID == Team.Id) && (game.Team_1_Score < game.Team_2_Score))
+        {
+            <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Error">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+        }
+        // Away loss
+        if ((game.Team_2_ID == Team.Id) && (game.Team_2_Score < game.Team_1_Score))
+        {
+            <MudButton DisableElevation="true" DisableRipple="true" Variant="Variant.Filled" Color="Color.Error">@game.Team_1_Score - @game.Team_2_Score</MudButton>
+        }
+    }
 
     <hr>
     <h2>Seasons</h2>
@@ -153,7 +149,6 @@ else
     {
         _offset = 0;
         _hidePrev = true;
-        _hideNext = false;
         var connectionString = _config.GetConnectionString("default");
         
         RecentForm = await _data.LoadData<Form, dynamic>($@"SELECT Team_1_ID, Team_2_ID, Team_1_Score, Team_2_Score FROM Fixtures 
@@ -164,6 +159,7 @@ ORDER BY Date desc LIMIT 5", new {}, connectionString);
         Seasons = await _data.LoadData<Season, dynamic>("SELECT * FROM Seasons", new {}, connectionString);
         Teams = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams", new {}, connectionString);
         await LoadFixturesAsync();
+        if (_fixtureCount <= Take) _hideNext = true;
         Team = Teams.Single(x => x.Id == Convert.ToInt32(Id));
     }
     
@@ -185,7 +181,7 @@ ORDER BY Date desc LIMIT 5", new {}, connectionString);
             return;
         }
         await LoadFixturesAsync();
-        if (_offset > _fixtureCount - Take) _hideNext = true;
+        if (_offset >= _fixtureCount - Take) _hideNext = true;
         if (_offset >= Take) _hidePrev = false;
     }
 
