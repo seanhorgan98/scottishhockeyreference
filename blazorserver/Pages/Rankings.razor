@@ -5,7 +5,7 @@
 @using Microsoft.Extensions.Configuration
 @inject IDataAccess _data
 @inject IConfiguration _config
-@inject IDialogService DialogService
+@inject IDialogService _dialogService
 
 
 <hr/>
@@ -15,62 +15,209 @@
 
 </MudPaper>
 
-
-@if (_teams == null)
-{
-    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
-}
-else
-{
-    <MudSimpleTable Hover="true" Dense="true">
-        <thead>
-        <tr>
-            <th>Rank</th>
-            <th>Name</th>
-            <th>Rating</th>
-            <th>Movement</th>
-        </tr>
-        </thead>
-        <tbody>
-        @{ int i = 1;}
-        @foreach (var row in _teams)
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+    <MudTabPanel Text="Men's">
+        @if (_men == null)
         {
-            <tr>
-                <td>@i</td>
-                @{ var url = "team/" + row.Id;}
-                <td><NavLink class="nav-link" href="@url">@row.Teamname</NavLink></td>
-                <td>@row.Rating</td>
-
-                @if (@row.Movement > 0)
-                {
-                    <td style="color: green">+@row.Movement</td>
-                }
-                else if (@row.Movement < 0)
-                {
-                    <td style="color: red">-@row.Movement</td>
-                }
-                else
-                {
-                    <td> </td>
-                }
-            </tr>
-            i++;
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
         }
-        </tbody>
-    </MudSimpleTable>
-}
+        else
+        {
+            <MudSimpleTable Hover="true" Dense="true" Elevation="0">
+                <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Rating</th>
+                    <th>Movement</th>
+                </tr>
+                </thead>
+                <tbody>
+                @{ int i = 1; }
+                @foreach (var row in _men)
+                {
+                    <tr>
+                        <td>@i</td>
+                        @{ var url = "team/" + row.Id; }
+                        <td><NavLink class="nav-link" href="@url">@row.Teamname</NavLink></td>
+                        <td>@row.Rating</td>
+
+                        @if (@row.Movement > 0)
+                        {
+                            <td style="color: green">+@row.Movement</td>
+                        }
+                        else if (@row.Movement < 0)
+                        {
+                            <td style="color: red">-@row.Movement</td>
+                        }
+                        else
+                        {
+                            <td> </td>
+                        }
+                    </tr>
+                    i++;
+                }
+                </tbody>
+            </MudSimpleTable>
+        }
+    </MudTabPanel>
+    <MudTabPanel Text="Women's">
+        @if (_women == null)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+        }
+        else
+        {
+            <MudSimpleTable Hover="true" Dense="true" Elevation="0">
+                <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Rating</th>
+                    <th>Movement</th>
+                </tr>
+                </thead>
+                <tbody>
+                @{ int i = 1;}
+                @foreach (var row in _women)
+                {
+                    <tr>
+                        <td>@i</td>
+                        @{ var url = "team/" + row.Id;}
+                        <td><NavLink class="nav-link" href="@url">@row.Teamname</NavLink></td>
+                        <td>@row.Rating</td>
+        
+                        @if (@row.Movement > 0)
+                        {
+                            <td style="color: green">+@row.Movement</td>
+                        }
+                        else if (@row.Movement < 0)
+                        {
+                            <td style="color: red">-@row.Movement</td>
+                        }
+                        else
+                        {
+                            <td> </td>
+                        }
+                    </tr>
+                    i++;
+                }
+                </tbody>
+            </MudSimpleTable>
+        }
+    </MudTabPanel>
+    <MudTabPanel Text="Men's Indoor">
+        @if (_menindoor == null)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+        }
+        else
+        {
+            <MudSimpleTable Hover="true" Dense="true" Elevation="0">
+                <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Rating</th>
+                    <th>Movement</th>
+                </tr>
+                </thead>
+                <tbody>
+                @{ int i = 1;}
+                @foreach (var row in _menindoor)
+                {
+                    <tr>
+                        <td>@i</td>
+                        @{ var url = "team/" + row.Id;}
+                        <td><NavLink class="nav-link" href="@url">@row.Teamname</NavLink></td>
+                        <td>@row.Rating</td>
+        
+                        @if (@row.Movement > 0)
+                        {
+                            <td style="color: green">+@row.Movement</td>
+                        }
+                        else if (@row.Movement < 0)
+                        {
+                            <td style="color: red">-@row.Movement</td>
+                        }
+                        else
+                        {
+                            <td> </td>
+                        }
+                    </tr>
+                    i++;
+                }
+                </tbody>
+            </MudSimpleTable>
+        }
+    </MudTabPanel>
+    <MudTabPanel Text="Women's Indoor">
+        @if (_womenindoor == null)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+        }
+        else
+        {
+            <MudSimpleTable Hover="true" Dense="true" Elevation="0">
+                <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Rating</th>
+                    <th>Movement</th>
+                </tr>
+                </thead>
+                <tbody>
+                @{ int i = 1; }
+                @foreach (var row in _womenindoor)
+                {
+                    <tr>
+                        <td>@i</td>
+                        @{ var url = "team/" + row.Id; }
+                        <td><NavLink class="nav-link" href="@url">@row.Teamname</NavLink></td>
+                        <td>@row.Rating</td>
+
+                        @if (@row.Movement > 0)
+                        {
+                            <td style="color: green">+@row.Movement</td>
+                        }
+                        else if (@row.Movement < 0)
+                        {
+                            <td style="color: red">-@row.Movement</td>
+                        }
+                        else
+                        {
+                            <td> </td>
+                        }
+                    </tr>
+                    i++;
+                }
+                </tbody>
+            </MudSimpleTable>
+        }
+    </MudTabPanel>
+</MudTabs>
+
+
+
 
 @code {
-    private List<Team> _teams;
+    private List<Team> _men;
+    private List<Team> _women;
+    private List<Team> _menindoor;
+    private List<Team> _womenindoor;
+    
     protected override async Task OnInitializedAsync()
     {
-        var temp = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams WHERE Active = 1;", new {}, _config.GetConnectionString("default"));
-        _teams = temp.OrderByDescending(x => x.Rating).ToList();
+        _men = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams WHERE Active = 1 AND Hockey_Category_ID = 1 ORDER BY Rating desc", new {}, _config.GetConnectionString("default"));
+        _women = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams WHERE Active = 1 AND Hockey_Category_ID = 2 ORDER BY Rating desc", new {}, _config.GetConnectionString("default"));
+        _menindoor = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams WHERE Active = 1 AND Hockey_Category_ID = 3 ORDER BY Rating desc", new {}, _config.GetConnectionString("default"));
+        _womenindoor = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams WHERE Active = 1 AND Hockey_Category_ID = 4 ORDER BY Rating desc", new {}, _config.GetConnectionString("default"));
     }
 
     private void OpenInfoDialog()
     {
-        DialogService.Show<EloInfoDialog>("Elo Information", new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true });
+        _dialogService.Show<EloInfoDialog>("Elo Information", new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true });
     }
 
 }
